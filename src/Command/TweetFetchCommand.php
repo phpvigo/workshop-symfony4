@@ -2,7 +2,9 @@
 
 namespace App\Command;
 
+use App\Entity\Tweet;
 use App\Service\TwitterClient;
+use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
@@ -15,10 +17,12 @@ class TweetFetchCommand extends Command
     protected static $defaultName = 'tweet:fetch';
 
     private $twitterClient;
+    private $entityManager;
 
-    public function __construct(TwitterClient $twitterClient)
+    public function __construct(TwitterClient $twitterClient, EntityManagerInterface $entityManager)
     {
         $this->twitterClient = $twitterClient;
+        $this->entityManager = $entityManager;
         parent::__construct();
     }
 
@@ -57,10 +61,6 @@ EOD
 
         $io->title(sprintf('Searching tweets for: %s', $text));
 
-        if ($input->getOption('no-persist')) {
-            // ...
-        }
-
         $tweets = $this->twitterClient->findTweetsWith($text, $include_entities, $result_type, $count);
 
         if ($tweets) {
@@ -73,6 +73,12 @@ EOD
                 ));
             }
 
+            if (!$input->getOption('no-persist')) {
+                $this->saveTweets($tweets);
+
+                $io->note(sprintf("Saved %d tweets!", count($tweets->statuses)));
+            }
+
         } else {
             $io->error('No tweets found!');
         }
@@ -80,5 +86,24 @@ EOD
         $io->success('Operation finished!');
     }
 
+    private function saveTweets($tweets)
+    {
+        foreach ($tweets->statuses as $tweet) {
+
+            $aTweet = new Tweet();
+
+            $aTweet
+                ->setTweetId($tweet->id)
+                ->setContent($tweet->text)
+                ->setUserName($tweet->user->name)
+                ->setUserImage($tweet->user->profile_image_url)
+                ->setCreatedAt(new \DateTime($tweet->created_at));
+
+            $this->entityManager->persist($aTweet);
+
+        }
+
+        $this->entityManager->flush();
+    }
 
 }
