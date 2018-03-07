@@ -139,4 +139,7 @@ class Tweet
         return $this;
     }
 
+    public function getLink() {
+        return  "<a href='https://twitter.com/{$this->getUserName()}/status/{$this->getTweetId()}' target='_blank'>{$this->getTweetId()}</a>";
+    }
 }
