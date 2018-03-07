@@ -8,6 +8,7 @@ parameters:
         consumer_secret: '%env(TWITTER_CONSUMER_SECRET)%'
         token: '%env(TWITTER_TOKEN)%'
         token_secret: '%env(TWITTER_TOKEN_SECRET)%'
+    locale: 'en'
 
 services:
     # default configuration for services in *this* file
