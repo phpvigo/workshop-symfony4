@@ -4,42 +4,13 @@
 namespace App\Service;
 
 
-use GuzzleHttp\Subscriber\Oauth\Oauth1;
-use GuzzleHttp\HandlerStack;
 use GuzzleHttp\Client;
 
-class TwitterClient
+class TwitterClient extends Client
 {
-
-    private $client;
-
-    /**
-     * TwitterClient constructor.
-     *
-     * @param $base_uri
-     * @param $consumer_key
-     * @param $consumer_secret
-     * @param $token
-     * @param $token_secret
-     */
-    public function __construct($base_uri, $consumer_key, $consumer_secret, $token, $token_secret)
+    public function __construct(array $config = [])
     {
-
-        $stack = HandlerStack::create();
-
-        $middleware = new Oauth1([
-            'consumer_key' => $consumer_key,
-            'consumer_secret' => $consumer_secret,
-            'token' => $token,
-            'token_secret' => $token_secret
-        ]);
-        $stack->push($middleware);
-
-
-        $this->client = new Client([
-            'base_uri' => $base_uri,
-            'handler' => $stack
-        ]);
+        parent::__construct($config);
     }
 
     /**
@@ -60,7 +31,7 @@ class TwitterClient
     {
 
         try {
-            $JSONResponse = $this->client->get('search/tweets.json', [
+            $JSONResponse = $this->get('search/tweets.json', [
                 'auth' => 'oauth',
                 'query' => [
                     'q' => $text,
@@ -73,7 +44,7 @@ class TwitterClient
             return json_decode($JSONResponse);
 
         } catch (\Exception $e) {
-            echo $e->getMessage();
+            return false;
         }
 
     }

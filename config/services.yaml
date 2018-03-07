@@ -3,10 +3,11 @@
 parameters:
     app.twitter_client.base_uri: 'https://api.twitter.com/1.1/'
 
-    app.twitter_client.oauth.consumer_key: '%env(TWITTER_CONSUMER_KEY)%'
-    app.twitter_client.oauth.consumer_secret: '%env(TWITTER_CONSUMER_SECRET)%'
-    app.twitter_client.oauth.token: '%env(TWITTER_TOKEN)%'
-    app.twitter_client.oauth.token_secret: '%env(TWITTER_TOKEN_SECRET)%'
+    app.twitter_client.oauth:
+        consumer_key: '%env(TWITTER_CONSUMER_KEY)%'
+        consumer_secret: '%env(TWITTER_CONSUMER_SECRET)%'
+        token: '%env(TWITTER_TOKEN)%'
+        token_secret: '%env(TWITTER_TOKEN_SECRET)%'
 
 services:
     # default configuration for services in *this* file
@@ -32,10 +33,18 @@ services:
     # add more service definitions when explicit configuration is needed
     # please note that last definitions always *replace* previous ones
 
-    App\Service\TwitterClient:
+    app.twitter_client.oauth1:
+        class: GuzzleHttp\Subscriber\Oauth\Oauth1
+        arguments: ['%app.twitter_client.oauth%']
+
+    app.twitter_client.handler_stack:
+        class: GuzzleHttp\HandlerStack
+        factory: ['GuzzleHttp\HandlerStack', 'create']
+        calls:
+            - method: push
+              arguments:
+                  - '@app.twitter_client.oauth1'
+
+    App\Service\TwitterClient: # Refactored service that extends GuzzleHttp\Client
         arguments:
-            - '%app.twitter_client.base_uri%'
-            - '%app.twitter_client.oauth.consumer_key%'
-            - '%app.twitter_client.oauth.consumer_secret%'
-            - '%app.twitter_client.oauth.token%'
-            - '%app.twitter_client.oauth.token_secret%'
+            - { base_uri: '%app.twitter_client.base_uri%', handler: '@app.twitter_client.handler_stack'}
