@@ -2,6 +2,8 @@
 
 namespace App\Controller;
 
+use App\Service\TwitterClient;
+use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use GuzzleHttp\Client;
@@ -10,6 +12,15 @@ use GuzzleHttp\Subscriber\Oauth\Oauth1;
 
 class DefaultController extends Controller
 {
+
+    /**
+     * @Route("/injection")
+     */
+    public function test_injection(TwitterClient $twitterClient)
+    {
+        return new Response($twitterClient->sayHello());
+    }
+
     /**
      * @Route("/oauth", name="twitter_oauth")
      */
