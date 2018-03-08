@@ -64,11 +64,13 @@ class Tweet
 
     /**
      * @param mixed $tweetId
+     *
      * @return Tweet
      */
     public function setTweetId($tweetId)
     {
         $this->tweetId = $tweetId;
+
         return $this;
     }
 
@@ -82,11 +84,13 @@ class Tweet
 
     /**
      * @param mixed $userName
+     *
      * @return Tweet
      */
     public function setUserName($userName)
     {
         $this->userName = $userName;
+
         return $this;
     }
 
@@ -100,11 +104,13 @@ class Tweet
 
     /**
      * @param mixed $userImage
+     *
      * @return Tweet
      */
     public function setUserImage($userImage)
     {
         $this->userImage = $userImage;
+
         return $this;
     }
 
@@ -118,11 +124,13 @@ class Tweet
 
     /**
      * @param mixed $originalTweetUsername
+     *
      * @return Tweet
      */
     public function setOriginalTweetUsername($originalTweetUsername)
     {
         $this->originalTweetUsername = $originalTweetUsername;
+
         return $this;
     }
 
@@ -136,11 +144,13 @@ class Tweet
 
     /**
      * @param mixed $content
+     *
      * @return Tweet
      */
     public function setContent($content)
     {
         $this->content = $content;
+
         return $this;
     }
 
@@ -154,15 +164,18 @@ class Tweet
 
     /**
      * @param mixed $createdAt
+     *
      * @return Tweet
      */
     public function setCreatedAt($createdAt)
     {
         $this->createdAt = $createdAt;
+
         return $this;
     }
 
-    public function getLink() {
+    public function getLink()
+    {
         return  "<a href='https://twitter.com/{$this->getUserName()}/status/{$this->getTweetId()}' target='_blank'>{$this->getTweetId()}</a>";
     }
 }

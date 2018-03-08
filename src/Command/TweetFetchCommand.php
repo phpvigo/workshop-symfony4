@@ -32,7 +32,9 @@ class TweetFetchCommand extends Command
             ->setDescription('Fetch and persist tweets')
             ->addArgument('text', InputArgument::REQUIRED, 'Text to search')
             ->addArgument('count', InputArgument::OPTIONAL, 'Max. number of tweets to fetch', 4)
-            ->addArgument('result_type', InputArgument::OPTIONAL,
+            ->addArgument(
+                'result_type',
+                InputArgument::OPTIONAL,
                 <<<'EOD'
 Specifies what type of search results you would prefer to receive. The current default is "mixed." Valid values include:
 
@@ -44,7 +46,8 @@ Specifies what type of search results you would prefer to receive. The current d
 
 EOD
                 ,
-                'recent')
+                'recent'
+            )
             ->addOption('include-entities', 'i', InputOption::VALUE_NONE, 'Include entities in twitter fetch')
             ->addOption('no-persist', null, InputOption::VALUE_NONE, 'Disable tweet persistence');
     }
@@ -64,10 +67,10 @@ EOD
         $tweets = $this->twitterClient->findTweetsWith($text, $include_entities, $result_type, $count);
 
         if ($tweets) {
-
             foreach ($tweets->statuses as $index => $tweet) {
-                $io->section(sprintf("Tweet #%d", $index + 1));
-                $io->writeln(sprintf("%s by @%s",
+                $io->section(sprintf('Tweet #%d', $index + 1));
+                $io->writeln(sprintf(
+                    '%s by @%s',
                     $tweet->text,
                     $tweet->user->screen_name
                 ));
@@ -76,9 +79,8 @@ EOD
             if (!$input->getOption('no-persist')) {
                 $this->saveTweets($tweets);
 
-                $io->note(sprintf("Saved %d tweets!", count($tweets->statuses)));
+                $io->note(sprintf('Saved %d tweets!', count($tweets->statuses)));
             }
-
         } else {
             $io->error('No tweets found!');
         }
@@ -89,7 +91,6 @@ EOD
     private function saveTweets($tweets)
     {
         foreach ($tweets->statuses as $tweet) {
-
             $aTweet = new Tweet();
 
             $originalTweetUsername = isset($tweet->retweeted_status) ? $tweet->retweeted_status->user->screen_name : null;
@@ -103,10 +104,8 @@ EOD
                 ->setCreatedAt(new \DateTime($tweet->created_at));
 
             $this->entityManager->persist($aTweet);
-
         }
 
         $this->entityManager->flush();
     }
-
 }
