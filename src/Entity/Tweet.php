@@ -32,6 +32,11 @@ class Tweet
     private $userImage;
 
     /**
+     * @ORM\Column(type="string", length=100, nullable=true)
+     */
+    private $originalTweetUsername;
+
+    /**
      * @ORM\Column(type="text")
      */
     private $content;
@@ -100,6 +105,24 @@ class Tweet
     public function setUserImage($userImage)
     {
         $this->userImage = $userImage;
+        return $this;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getOriginalTweetUsername()
+    {
+        return $this->originalTweetUsername;
+    }
+
+    /**
+     * @param mixed $originalTweetUsername
+     * @return Tweet
+     */
+    public function setOriginalTweetUsername($originalTweetUsername)
+    {
+        $this->originalTweetUsername = $originalTweetUsername;
         return $this;
     }
 

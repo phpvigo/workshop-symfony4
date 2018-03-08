@@ -92,10 +92,13 @@ EOD
 
             $aTweet = new Tweet();
 
+            $originalTweetUsername = isset($tweet->retweeted_status) ? $tweet->retweeted_status->user->screen_name : null;
+
             $aTweet
                 ->setTweetId($tweet->id)
                 ->setContent($tweet->text)
-                ->setUserName($tweet->user->name)
+                ->setUserName($tweet->user->screen_name)
+                ->setOriginalTweetUsername($originalTweetUsername)
                 ->setUserImage($tweet->user->profile_image_url)
                 ->setCreatedAt(new \DateTime($tweet->created_at));
 
