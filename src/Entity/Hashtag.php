@@ -31,9 +31,9 @@ class Hashtag
     private $tweet;
 
     /**
-     * @ORM\Column(type="datetime_immutable", nullable=true)
+     * @ORM\Column(type="integer", nullable=true)
      */
-    private $lastSearch;
+    private $lastTweet;
 
     public function __construct()
     {
@@ -104,14 +104,14 @@ class Hashtag
         return $this;
     }
 
-    public function getLastSearch(): ?\DateTimeImmutable
+    public function getLastTweet(): ?int
     {
-        return $this->lastSearch;
+        return $this->lastTweet;
     }
 
-    public function setLastSearch(?\DateTimeImmutable $lastSearch): self
+    public function setLastTweet(?int $lastTweet): self
     {
-        $this->lastSearch = $lastSearch;
+        $this->lastTweet = $lastTweet;
 
         return $this;
     }
