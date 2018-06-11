@@ -47,6 +47,29 @@ class Tweet
     private $createdAt;
 
     /**
+     * @ORM\ManyToOne(targetEntity="App\Entity\Hashtag", inversedBy="tweet")
+     * @ORM\JoinColumn(nullable=false)
+     */
+    private $hashtag;
+
+    public static function buildAndAttachToHashtag(\StdClass $tweet, Hashtag $hashtag) : self
+    {
+        $originalTweetUsername = isset($tweet->retweeted_status) ? $tweet->retweeted_status->user->screen_name : null;
+
+        $entity = new self;
+        $entity
+            ->setTweetId($tweet->id)
+            ->setContent($tweet->text)
+            ->setUserName($tweet->user->screen_name)
+            ->setOriginalTweetUsername($originalTweetUsername)
+            ->setUserImage($tweet->user->profile_image_url)
+            ->setCreatedAt(new \DateTime($tweet->created_at))
+            ->setHashtag($hashtag);
+
+        return $entity;
+    }
+
+    /**
      * @return mixed
      */
     public function getId()
@@ -177,5 +200,17 @@ class Tweet
     public function getLink()
     {
         return  "<a href='https://twitter.com/{$this->getUserName()}/status/{$this->getTweetId()}' target='_blank'>{$this->getTweetId()}</a>";
+    }
+
+    public function getHashtag(): ?Hashtag
+    {
+        return $this->hashtag;
+    }
+
+    public function setHashtag(?Hashtag $hashtag): self
+    {
+        $this->hashtag = $hashtag;
+
+        return $this;
     }
 }
