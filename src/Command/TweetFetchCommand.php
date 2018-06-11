@@ -70,7 +70,7 @@ EOD
         $io->title(sprintf('Searching tweets for: %s', $text));
 
         $hashtag = $this->obtainHashtagFromText($text, $persist);
-        $tweetSearch = $this->twitterClient->findTweetsWith($hashtag->getName(), $include_entities, $result_type, $count);
+        $tweetSearch = $this->twitterClient->findTweetsWith($hashtag, $include_entities, $result_type, $count);
         $this->buildAndShowTweets($tweetSearch->statuses, $hashtag, $io, $persist);
 
         $io->success('Operation finished!');
@@ -115,6 +115,7 @@ EOD
         }
 
         if ($persist) {
+            $this->updateHashtagLastTweet($hashtag, ... $tweetsToSave);
             $this->saveTweets(... $tweetsToSave);
             $io->note(sprintf('Saved %d tweets!', count($tweetsToSave)));
         }
@@ -122,9 +123,16 @@ EOD
         return $tweetsToSave;
     }
 
+    private function updateHashtagLastTweet(Hashtag $hashtag, Tweet ...$tweets)
+    {
+        $lastIndex = count($tweets) - 1;
+        $hashtag->setLastTweet($tweets[$lastIndex]->getTweetId());
+        $this->hashtagRepository->save($hashtag);
+    }
+
     private function saveTweets(Tweet ...$tweets)
     {
-        if (empty($tweet))
+        if (empty($tweets))
         {
             return;
         }
