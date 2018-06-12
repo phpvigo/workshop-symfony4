@@ -52,6 +52,11 @@ class Tweet
      */
     private $hashtag;
 
+    public function __toString()
+    {
+        return $this->getCreatedAt()->format('Y/m/d H:i:s') . ': @' . $this->getUserName();
+    }
+
     public static function buildAndAttachToHashtag(\StdClass $tweet, Hashtag $hashtag) : self
     {
         $originalTweetUsername = isset($tweet->retweeted_status) ? $tweet->retweeted_status->user->screen_name : null;
@@ -180,7 +185,7 @@ class Tweet
     /**
      * @return mixed
      */
-    public function getCreatedAt()
+    public function getCreatedAt() : \DateTime
     {
         return $this->createdAt;
     }

@@ -2,6 +2,7 @@
 
 namespace App\Repository;
 
+use App\Entity\Hashtag;
 use App\Entity\Tweet;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Symfony\Bridge\Doctrine\RegistryInterface;
@@ -17,6 +18,13 @@ class TweetRepository extends ServiceEntityRepository
     public function __construct(RegistryInterface $registry)
     {
         parent::__construct($registry, Tweet::class);
+    }
+
+    public function getRandomTweet(?Hashtag $hashtag) : ?Tweet
+    {
+        $tweets = $this->findBy(['hashtag' => $hashtag]);
+        shuffle($tweets);
+        return $tweets[0];
     }
 
     /*
