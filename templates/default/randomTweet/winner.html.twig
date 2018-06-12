@@ -1,24 +1,13 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}Random tweet{% endblock %}
+{% block title %}{{ hashtag.getName() }}: Random tweet{% endblock %}
 
+{% block menu %}
+<a href="" class="btn btn-primary">
+    <i class="fas fa-sync-alt"></i> Refresh
+</a>
+{% endblock %}
 {% block body %}
-    <div class="row justify-content-md-center align-items-center">
-        <div class="col-md-3 text-center">
-            <a target="_blank" href="https://www.phpvigo.com">
-                <img style="width: 150px;" src="https://pbs.twimg.com/profile_images/686976828897161217/iGhH7VPz_400x400.jpg">
-            </a>
-        </div>
-        <div class="col-md-auto text-center">
-            <a href="{{ path('list_hashtags') }}" class="btn btn-primary">
-                <i class="fas fa-sync-alt"></i> Refresh
-            </a>
-            <a href="{{ path('admin') }}" class="btn btn-info">
-                <i class="fas fa-lock"></i> Admin panel
-            </a>
-        </div>
-    </div>
-
     <div class="row justify-content-md-center">
         <div class="col-md-auto">
             {% if winner.originalTweetUsername is not empty %}

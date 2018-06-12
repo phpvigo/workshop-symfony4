@@ -8,8 +8,25 @@
 
 namespace App\Controller;
 
+use App\Repository\HashtagRepository;
+use Symfony\Bundle\FrameworkBundle\Controller\Controller;
+use Symfony\Component\Routing\Annotation\Route;
+use App\Entity\Hashtag;
 
-class HashtagController
+
+class HashtagController extends Controller
 {
-
+    /**
+     * @Route("/", name="list_hashtags")
+     *
+     * @param HashtagRepository $hashtagRepository
+     *
+     * @return \Symfony\Component\HttpFoundation\Response
+     */
+    function listHashtags(HashtagRepository $hashtagRepository)
+    {
+        return $this->render('default/hashtag/listHashtags.html.twig', [
+            'hashtags' => $hashtagRepository->findAll(),
+        ]);
+    }
 }

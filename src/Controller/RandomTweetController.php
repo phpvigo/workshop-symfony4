@@ -2,30 +2,33 @@
 
 namespace App\Controller;
 
+use App\Entity\Hashtag;
+use App\Repository\HashtagRepository;
+use App\Repository\TweetRepository;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Symfony\Component\Routing\Annotation\Route;
 use Doctrine\ORM\EntityManagerInterface;
 use App\Entity\Tweet;
 
-class DefaultController extends Controller
+class RandomTweetController extends Controller
 {
     /**
-     * @Route("/", name="random_tweet")
+     * @Route("/hashtag/{slug}", name="random_tweet")
      *
-     * @param EntityManagerInterface $entityManager
+     * @param string $slug
+     * @param TweetRepository $tweetRepository
+     * @param HashtagRepository $hashtagRepository
      *
      * @return \Symfony\Component\HttpFoundation\Response
      */
-    public function getRandomTweet(EntityManagerInterface $entityManager)
+    public function getRandomTweet(string $slug, TweetRepository $tweetRepository, HashtagRepository $hashtagRepository)
     {
-        $tweets = $entityManager->getRepository(Tweet::class)->findAll();
 
-        shuffle($tweets);
+        $hashtag = $hashtagRepository->find($slug);
 
-        $winner = $tweets[0];
-
-        return $this->render('default/index.html.twig', [
-            'winner' => $winner,
+        return $this->render('default/randomTweet/winner.html.twig', [
+            'hashtag' => $hashtag,
+            'winner' => $tweetRepository->getRandomTweet($hashtag),
         ]);
     }
 }
