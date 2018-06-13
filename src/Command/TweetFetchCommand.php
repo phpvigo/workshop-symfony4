@@ -61,16 +61,19 @@ EOD
     {
         $io = new SymfonyStyle($input, $output);
         $persist = !$input->getOption('no-persist');
+
         $twitterSearch = $this->processInputAndReturnTwitterSearch($input, $persist);
 
         $io->title(sprintf('Searching tweets for: %s', $twitterSearch->hashtag()->getName()));
 
-        $this->buildAndShowTweets(
+        $tweets = $this->buildTweets(
             $this->twitterClient->findTweetsWith($twitterSearch)->statuses,
             $twitterSearch->hashtag(),
-            $io,
-            $persist
+            $io
         );
+
+        $this->persistDataIfIsEnabled($persist, $io, $twitterSearch->hashtag(), ... $tweets);
+        $this->showTweets($io, ... $tweets);
 
         $io->success('Operation finished!');
     }
@@ -100,20 +103,10 @@ EOD
         return $hashtag;
     }
 
-    private function buildAndShowTweets(array $tweetSearch, Hashtag $hashtag, SymfonyStyle $io, bool $persist) : void
-    {
-        if (empty($tweetSearch)) {
-            $io->error('No tweets found!');
-            return;
-        }
-
-        $tweets = $this->buildTweets($tweetSearch, $hashtag, $io, $persist);
-        $this->showTweets($io, ... $tweets);
-    }
-
-    private function buildTweets(array $tweets, Hashtag $hashtag, SymfonyStyle $io, bool $persist) : array
+    private function buildTweets(array $tweets, Hashtag $hashtag, SymfonyStyle $io) : array
     {
         if (empty($tweets)) {
+            $io->error('No tweets found!');
             return [];
         }
 
@@ -123,20 +116,39 @@ EOD
             $tweetsToSave[] = Tweet::buildAndAttachToHashtag($tweet, $hashtag);
         }
 
-        if ($persist) {
-            $this->updateHashtagLastTweet($hashtag, ... $tweetsToSave);
-            $this->saveTweets(... $tweetsToSave);
-            $io->note(sprintf('Saved %d tweets!', count($tweetsToSave)));
+        return $tweetsToSave;
+    }
+
+    private function persistDataIfIsEnabled(bool $persist, SymfonyStyle $io, Hashtag $hashtag, Tweet ... $tweets) : void
+    {
+        if (!$persist) {
+            return;
         }
 
-        return $tweetsToSave;
+        $this->updateHashtagLastTweet($hashtag, ... $tweets);
+        $this->saveTweets(... $tweets);
+        $io->note(sprintf('Saved %d tweets!', count($tweets)));
     }
 
     private function updateHashtagLastTweet(Hashtag $hashtag, Tweet ...$tweets)
     {
-        $tweet = end($tweets);
-        $hashtag->setLastTweet($tweet->getTweetId());
+        $lastTweetId = $this->obtainMaxTweetId(...$tweets);
+
+        if ($lastTweetId > $hashtag->getLastTweet()) {
+            $hashtag->setLastTweet($lastTweetId);
+        }
+
         $this->hashtagRepository->save($hashtag);
+    }
+
+    private function obtainMaxTweetid(Tweet ... $tweets) : int
+    {
+        $ids = [];
+        foreach ($tweets AS $tweet) {
+            $ids[] = (int) $tweet->getTweetId();
+        }
+        $ids[] = 0;
+        return max($ids);
     }
 
     private function saveTweets(Tweet ...$tweets)
