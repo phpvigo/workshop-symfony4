@@ -5,8 +5,9 @@ namespace App\Command;
 use App\Entity\Hashtag;
 use App\Entity\Tweet;
 use App\Repository\HashtagRepository;
+use App\Repository\TweetRepository;
 use App\Service\TwitterClient;
-use Doctrine\ORM\EntityManagerInterface;
+use App\ValueObject\TwitterSearch;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
@@ -19,13 +20,13 @@ class TweetFetchCommand extends Command
     protected static $defaultName = 'tweet:fetch';
 
     private $twitterClient;
-    private $entityManager;
+    private $tweetRepository;
     private $hashtagRepository;
 
-    public function __construct(TwitterClient $twitterClient, EntityManagerInterface $entityManager, HashtagRepository $hashtagRepository)
+    public function __construct(TwitterClient $twitterClient, TweetRepository $tweetRepository, HashtagRepository $hashtagRepository)
     {
         $this->twitterClient = $twitterClient;
-        $this->entityManager = $entityManager;
+        $this->tweetRepository = $tweetRepository;
         $this->hashtagRepository = $hashtagRepository;
         parent::__construct();
     }
@@ -59,21 +60,32 @@ EOD
     protected function execute(InputInterface $input, OutputInterface $output)
     {
         $io = new SymfonyStyle($input, $output);
-
-        $text = $input->getArgument('text');
-        $result_type = $input->getArgument('result_type');
-        $count = $input->getArgument('count');
         $persist = !$input->getOption('no-persist');
 
-        $include_entities = $input->getOption('include-entities');
+        $twitterSearch = $this->processInputAndReturnTwitterSearch($input, $persist);
 
-        $io->title(sprintf('Searching tweets for: %s', $text));
+        $io->title(sprintf('Searching tweets for: %s', $twitterSearch->hashtag()->getName()));
 
-        $hashtag = $this->obtainHashtagFromText($text, $persist);
-        $tweetSearch = $this->twitterClient->findTweetsWith($hashtag, $include_entities, $result_type, $count);
-        $this->buildAndShowTweets($tweetSearch->statuses, $hashtag, $io, $persist);
+        $tweets = $this->buildTweets(
+            $this->twitterClient->findTweetsWith($twitterSearch)->statuses,
+            $twitterSearch->hashtag(),
+            $io
+        );
+
+        $this->persistDataIfIsEnabled($persist, $io, $twitterSearch->hashtag(), ... $tweets);
+        $this->showTweets($io, ... $tweets);
 
         $io->success('Operation finished!');
+    }
+
+    private function processInputAndReturnTwitterSearch(InputInterface $input, bool $persist) : TwitterSearch
+    {
+        return new TwitterSearch(
+            $this->obtainHashtagFromText($input->getArgument('text'), $persist),
+            (bool) $input->getOption('include-entities'),
+            (string) $input->getArgument('result_type'),
+            (int) $input->getArgument('count')
+        );
     }
 
     private function obtainHashtagFromText(string $text, bool $persist) : Hashtag
@@ -91,20 +103,10 @@ EOD
         return $hashtag;
     }
 
-    private function buildAndShowTweets(array $tweetSearch, Hashtag $hashtag, SymfonyStyle $io, bool $persist) : void
-    {
-        if (empty($tweetSearch)) {
-            $io->error('No tweets found!');
-            return;
-        }
-
-        $tweets = $this->buildTweets($tweetSearch, $hashtag, $io, $persist);
-        $this->showTweets($io, ... $tweets);
-    }
-
-    private function buildTweets(array $tweets, Hashtag $hashtag, SymfonyStyle $io, bool $persist) : array
+    private function buildTweets(array $tweets, Hashtag $hashtag, SymfonyStyle $io) : array
     {
         if (empty($tweets)) {
+            $io->error('No tweets found!');
             return [];
         }
 
@@ -114,34 +116,48 @@ EOD
             $tweetsToSave[] = Tweet::buildAndAttachToHashtag($tweet, $hashtag);
         }
 
-        if ($persist) {
-            $this->updateHashtagLastTweet($hashtag, ... $tweetsToSave);
-            $this->saveTweets(... $tweetsToSave);
-            $io->note(sprintf('Saved %d tweets!', count($tweetsToSave)));
+        return $tweetsToSave;
+    }
+
+    private function persistDataIfIsEnabled(bool $persist, SymfonyStyle $io, Hashtag $hashtag, Tweet ... $tweets) : void
+    {
+        if (!$persist) {
+            return;
         }
 
-        return $tweetsToSave;
+        $this->updateHashtagLastTweet($hashtag, ... $tweets);
+        $this->saveTweets(... $tweets);
+        $io->note(sprintf('Saved %d tweets!', count($tweets)));
     }
 
     private function updateHashtagLastTweet(Hashtag $hashtag, Tweet ...$tweets)
     {
-        $lastIndex = count($tweets) - 1;
-        $hashtag->setLastTweet($tweets[$lastIndex]->getTweetId());
+        $lastTweetId = $this->obtainMaxTweetId(...$tweets);
+
+        if ($lastTweetId > $hashtag->getLastTweet()) {
+            $hashtag->setLastTweet($lastTweetId);
+        }
+
         $this->hashtagRepository->save($hashtag);
+    }
+
+    private function obtainMaxTweetid(Tweet ... $tweets) : int
+    {
+        $ids = [];
+        foreach ($tweets AS $tweet) {
+            $ids[] = (int) $tweet->getTweetId();
+        }
+        $ids[] = 0;
+        return max($ids);
     }
 
     private function saveTweets(Tweet ...$tweets)
     {
-        if (empty($tweets))
-        {
+        if (empty($tweets)) {
             return;
         }
 
-        foreach ($tweets as $tweet) {
-            $this->entityManager->persist($tweet);
-        }
-
-        $this->entityManager->flush();
+        $this->tweetRepository->multipleSave(... $tweets);
     }
 
     private function showTweets(SymfonyStyle $io, Tweet ...$tweets) : void

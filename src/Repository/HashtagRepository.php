@@ -4,7 +4,6 @@ namespace App\Repository;
 
 use App\Entity\Hashtag;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
-use Doctrine\Common\Collections\Collection;
 use Symfony\Bridge\Doctrine\RegistryInterface;
 
 /**
@@ -25,38 +24,11 @@ class HashtagRepository extends ServiceEntityRepository
         return $this->findOneBy(['name' => $value]);
     }
 
-    public function save(Hashtag $hashtag) : void
+    public function save(Hashtag $hashtag, bool $flush = true) : void
     {
         $this->_em->persist($hashtag);
-        $this->_em->flush();
+        if ($flush) {
+            $this->_em->flush();
+        }
     }
-
-//    /**
-//     * @return Hashtag[] Returns an array of Hashtag objects
-//     */
-    /*
-    public function findByExampleField($value)
-    {
-        return $this->createQueryBuilder('h')
-            ->andWhere('h.exampleField = :val')
-            ->setParameter('val', $value)
-            ->orderBy('h.id', 'ASC')
-            ->setMaxResults(10)
-            ->getQuery()
-            ->getResult()
-        ;
-    }
-    */
-
-    /*
-    public function findOneBySomeField($value): ?Hashtag
-    {
-        return $this->createQueryBuilder('h')
-            ->andWhere('h.exampleField = :val')
-            ->setParameter('val', $value)
-            ->getQuery()
-            ->getOneOrNullResult()
-        ;
-    }
-    */
 }

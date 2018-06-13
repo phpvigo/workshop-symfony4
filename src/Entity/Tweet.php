@@ -14,7 +14,7 @@ class Tweet
     use Uuidable;
 
     /**
-     * @ORM\Column(type="string", unique=true)
+     * @ORM\Column(type="integer", unique=true)
      */
     private $tweetId;
 
@@ -59,6 +59,11 @@ class Tweet
         return $this->getCreatedAt()->format('Y/m/d H:i:s') . ': @' . $this->getUserName();
     }
 
+    /**
+     * @param \StdClass $tweet
+     * @param Hashtag $hashtag
+     * @return Tweet
+     */
     public static function buildAndAttachToHashtag(\StdClass $tweet, Hashtag $hashtag) : self
     {
         $originalTweetUsername = isset($tweet->retweeted_status) ? $tweet->retweeted_status->user->screen_name : null;
@@ -77,19 +82,19 @@ class Tweet
     }
 
     /**
-     * @return mixed
+     * @return int
      */
-    public function getTweetId()
+    public function getTweetId() : int
     {
         return $this->tweetId;
     }
 
     /**
-     * @param mixed $tweetId
+     * @param int $tweetId
      *
      * @return Tweet
      */
-    public function setTweetId($tweetId)
+    public function setTweetId(int $tweetId) : self
     {
         $this->tweetId = $tweetId;
 
@@ -97,9 +102,9 @@ class Tweet
     }
 
     /**
-     * @return mixed
+     * @return string
      */
-    public function getUserName()
+    public function getUserName() : string
     {
         return $this->userName;
     }
@@ -109,7 +114,7 @@ class Tweet
      *
      * @return Tweet
      */
-    public function setUserName($userName)
+    public function setUserName(string $userName) : self
     {
         $this->userName = $userName;
 
@@ -117,19 +122,19 @@ class Tweet
     }
 
     /**
-     * @return mixed
+     * @return string
      */
-    public function getUserImage()
+    public function getUserImage() : string
     {
         return $this->userImage;
     }
 
     /**
-     * @param mixed $userImage
+     * @param string $userImage
      *
      * @return Tweet
      */
-    public function setUserImage($userImage)
+    public function setUserImage(string $userImage) : self
     {
         $this->userImage = $userImage;
 
@@ -137,19 +142,19 @@ class Tweet
     }
 
     /**
-     * @return mixed
+     * @return string
      */
-    public function getOriginalTweetUsername()
+    public function getOriginalTweetUsername() : ?string
     {
         return $this->originalTweetUsername;
     }
 
     /**
-     * @param mixed $originalTweetUsername
+     * @param string $originalTweetUsername
      *
      * @return Tweet
      */
-    public function setOriginalTweetUsername($originalTweetUsername)
+    public function setOriginalTweetUsername(?string $originalTweetUsername) : self
     {
         $this->originalTweetUsername = $originalTweetUsername;
 
@@ -157,19 +162,19 @@ class Tweet
     }
 
     /**
-     * @return mixed
+     * @return string
      */
-    public function getContent()
+    public function getContent() : string
     {
         return $this->content;
     }
 
     /**
-     * @param mixed $content
+     * @param string $content
      *
      * @return Tweet
      */
-    public function setContent($content)
+    public function setContent(string $content) : self
     {
         $this->content = $content;
 
@@ -177,7 +182,7 @@ class Tweet
     }
 
     /**
-     * @return mixed
+     * @return \DateTime
      */
     public function getCreatedAt() : \DateTime
     {
@@ -185,27 +190,37 @@ class Tweet
     }
 
     /**
-     * @param mixed $createdAt
+     * @param \DateTime $createdAt
      *
      * @return Tweet
      */
-    public function setCreatedAt($createdAt)
+    public function setCreatedAt($createdAt) : self
     {
         $this->createdAt = $createdAt;
 
         return $this;
     }
 
-    public function getLink()
+    /**
+     * @return string
+     */
+    public function getLink() : string
     {
         return  "<a href='https://twitter.com/{$this->getUserName()}/status/{$this->getTweetId()}' target='_blank'>{$this->getTweetId()}</a>";
     }
 
+    /**
+     * @return Hashtag|null
+     */
     public function getHashtag(): ?Hashtag
     {
         return $this->hashtag;
     }
 
+    /**
+     * @param Hashtag|null $hashtag
+     * @return Tweet
+     */
     public function setHashtag(?Hashtag $hashtag): self
     {
         $this->hashtag = $hashtag;

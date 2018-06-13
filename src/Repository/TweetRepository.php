@@ -27,16 +27,19 @@ class TweetRepository extends ServiceEntityRepository
         return $tweets[0];
     }
 
-    /*
-    public function findBySomething($value)
+    public function save(Tweet $tweet, bool $flush = true) : void
     {
-        return $this->createQueryBuilder('t')
-            ->where('t.something = :value')->setParameter('value', $value)
-            ->orderBy('t.id', 'ASC')
-            ->setMaxResults(10)
-            ->getQuery()
-            ->getResult()
-        ;
+        $this->_em->persist($tweet);
+        if ($flush) {
+            $this->_em->flush();
+        }
     }
-    */
+
+    public function multipleSave(Tweet ...$tweets) : void
+    {
+        foreach ($tweets as $tweet) {
+            $this->save($tweet, false);
+        }
+        $this->_em->flush();
+    }
 }
