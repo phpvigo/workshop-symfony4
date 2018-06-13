@@ -61,15 +61,8 @@ EOD
     protected function execute(InputInterface $input, OutputInterface $output)
     {
         $io = new SymfonyStyle($input, $output);
-
         $persist = !$input->getOption('no-persist');
-
-        $twitterSearch = new TwitterSearch(
-            $this->obtainHashtagFromText($input->getArgument('text'), $persist),
-            (bool) $input->getOption('include-entities'),
-            (string) $input->getArgument('result_type'),
-            (int) $input->getArgument('count')
-        );
+        $twitterSearch = $this->processInputAndReturnTwitterSearch($input, $persist);
 
         $io->title(sprintf('Searching tweets for: %s', $twitterSearch->hashtag()->getName()));
 
@@ -81,6 +74,16 @@ EOD
         );
 
         $io->success('Operation finished!');
+    }
+
+    private function processInputAndReturnTwitterSearch(InputInterface $input, bool $persist) : TwitterSearch
+    {
+        return new TwitterSearch(
+            $this->obtainHashtagFromText($input->getArgument('text'), $persist),
+            (bool) $input->getOption('include-entities'),
+            (string) $input->getArgument('result_type'),
+            (int) $input->getArgument('count')
+        );
     }
 
     private function obtainHashtagFromText(string $text, bool $persist) : Hashtag
