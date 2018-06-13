@@ -2,6 +2,7 @@
 
 namespace App\Entity;
 
+use App\Entity\Traits\Uuidable;
 use Doctrine\ORM\Mapping as ORM;
 
 /**
@@ -9,12 +10,8 @@ use Doctrine\ORM\Mapping as ORM;
  */
 class Tweet
 {
-    /**
-     * @ORM\Id
-     * @ORM\GeneratedValue
-     * @ORM\Column(type="integer")
-     */
-    private $id;
+
+    use Uuidable;
 
     /**
      * @ORM\Column(type="string", unique=true)
@@ -52,6 +49,11 @@ class Tweet
      */
     private $hashtag;
 
+    public function __construct()
+    {
+        $this->generateId();
+    }
+
     public function __toString()
     {
         return $this->getCreatedAt()->format('Y/m/d H:i:s') . ': @' . $this->getUserName();
@@ -72,14 +74,6 @@ class Tweet
             ->setHashtag($hashtag);
 
         return $entity;
-    }
-
-    /**
-     * @return mixed
-     */
-    public function getId()
-    {
-        return $this->id;
     }
 
     /**

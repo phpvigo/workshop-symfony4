@@ -6,19 +6,25 @@
     <div class="row justify-content-md-center">
         <div class="table-responsive">
             {% if hashtags is not empty %}
-            <table class="table table-striped">
+            <table id="hashtagsTable" class="table table-striped">
                 <thead class="thead-dark">
                     <tr>
                         <th colspan="2">Hashtag</th>
                     </tr>
                 </thead>
                 <tbody>
+                {% if hashtags|length > 0 %}
                 {% for hashtag in hashtags %}
                     <tr>
                         <td>{{  hashtag.getName() }}</td>
                         <td class="text-right"><a href="/hashtag/{{ hashtag.getId().toString() }}" class="btn btn-secondary btn-sm">Random Tweet</a></td>
                     </tr>
                 {% endfor %}
+                {% else %}
+                    <tr>
+                        <td colspan="2" class="text-center">Todavía no hay hashtags trackeados</td>
+                    </tr>
+                {% endif %}
                 </tbody>
             </table>
             {% endif %}

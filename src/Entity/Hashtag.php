@@ -2,16 +2,19 @@
 
 namespace App\Entity;
 
+use App\Entity\Traits\Uuidable;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
-use Ramsey\Uuid\Uuid;
 
 /**
  * @ORM\Entity(repositoryClass="App\Repository\HashtagRepository")
  */
 class Hashtag
 {
+
+    use Uuidable;
+
     /**
      * @ORM\Id()
      * @ORM\Column(type="uuid", unique=true)
@@ -37,25 +40,15 @@ class Hashtag
 
     public function __construct()
     {
+        $this->generateId();
         $this->tweet = new ArrayCollection();
     }
 
     public static function fromName(string $string) : self
     {
         $hashtag = new self();
-        $hashtag->generateId();
         $hashtag->setName($string);
         return $hashtag;
-    }
-
-    private function generateId()
-    {
-        $this->id = Uuid::uuid4()->toString();
-    }
-
-    public function getId() : Uuid
-    {
-        return $this->id;
     }
 
     public function getName(): string
