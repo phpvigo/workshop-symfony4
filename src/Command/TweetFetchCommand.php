@@ -8,7 +8,6 @@ use App\Repository\HashtagRepository;
 use App\Repository\TweetRepository;
 use App\Service\TwitterClient;
 use App\ValueObject\TwitterSearch;
-use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
@@ -135,8 +134,8 @@ EOD
 
     private function updateHashtagLastTweet(Hashtag $hashtag, Tweet ...$tweets)
     {
-        $lastIndex = count($tweets) - 1;
-        $hashtag->setLastTweet($tweets[$lastIndex]->getTweetId());
+        $tweet = end($tweets);
+        $hashtag->setLastTweet($tweet->getTweetId());
         $this->hashtagRepository->save($hashtag);
     }
 
