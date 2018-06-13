@@ -2,7 +2,7 @@
 
 namespace App\Service;
 
-use App\Entity\Hashtag;
+use App\ValueObject\TwitterSearch;
 use GuzzleHttp\Client;
 
 class TwitterClient extends Client
@@ -15,29 +15,22 @@ class TwitterClient extends Client
     /**
      * Find tweets by text.
      *
-     * @param Hashtag $hashtag
-     * @param bool $include_entities
-     * @param string $result_type
-     * @param int $count
-     *
-     * @return array
+     * @param TwitterSearch $twitterSearch
+     * @return bool|mixed
      */
     public function findTweetsWith(
-        Hashtag $hashtag,
-        $include_entities = false,
-        $result_type = 'recent',
-        $count = 4
+        TwitterSearch $twitterSearch
     ) {
         try {
 
             $options = [
                 'auth' => 'oauth',
                 'query' => [
-                    'q' => $hashtag->getName(),
-                    'include_entities' => $include_entities,
-                    'result_type' => $result_type,
-                    'count' => $count,
-                    'since_id' => $hashtag->getLastTweet()
+                    'q' => $twitterSearch->hashtag()->getName(),
+                    'include_entities' => $twitterSearch->includeEntities(),
+                    'result_type' => $twitterSearch->resultType(),
+                    'count' => $twitterSearch->count(),
+                    'since_id' => $twitterSearch->hashtag()->getLastTweet()
                 ]
             ];
 
