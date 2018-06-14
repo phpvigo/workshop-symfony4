@@ -7,13 +7,14 @@ use App\Entity\Tweet;
 use App\Repository\HashtagRepository;
 use App\Repository\TweetRepository;
 use App\Service\TwitterClient;
+use App\Utils\OutputLogger;
 use App\ValueObject\TwitterSearch;
+use Psr\Log\LoggerInterface;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
-use Symfony\Component\Console\Style\SymfonyStyle;
 
 class TweetFetchCommand extends Command
 {
@@ -22,12 +23,14 @@ class TweetFetchCommand extends Command
     private $twitterClient;
     private $tweetRepository;
     private $hashtagRepository;
+    private $logger;
 
-    public function __construct(TwitterClient $twitterClient, TweetRepository $tweetRepository, HashtagRepository $hashtagRepository)
+    public function __construct(TwitterClient $twitterClient, TweetRepository $tweetRepository, HashtagRepository $hashtagRepository, LoggerInterface $logger)
     {
         $this->twitterClient = $twitterClient;
         $this->tweetRepository = $tweetRepository;
         $this->hashtagRepository = $hashtagRepository;
+        $this->logger = $logger;
         parent::__construct();
     }
 
@@ -59,7 +62,7 @@ EOD
 
     protected function execute(InputInterface $input, OutputInterface $output)
     {
-        $io = new SymfonyStyle($input, $output);
+        $io = new OutputLogger($input, $output, $this->logger);
         $persist = !$input->getOption('no-persist');
 
         $twitterSearch = $this->processInputAndReturnTwitterSearch($input, $persist);
@@ -103,7 +106,7 @@ EOD
         return $hashtag;
     }
 
-    private function buildTweets(array $tweets, Hashtag $hashtag, SymfonyStyle $io) : array
+    private function buildTweets(array $tweets, Hashtag $hashtag, OutputLogger $io) : array
     {
         if (empty($tweets)) {
             $io->error('No tweets found!');
@@ -119,7 +122,7 @@ EOD
         return $tweetsToSave;
     }
 
-    private function persistDataIfIsEnabled(bool $persist, SymfonyStyle $io, Hashtag $hashtag, Tweet ... $tweets) : void
+    private function persistDataIfIsEnabled(bool $persist, OutputLogger $io, Hashtag $hashtag, Tweet ... $tweets) : void
     {
         if (!$persist) {
             return;
@@ -160,7 +163,7 @@ EOD
         $this->tweetRepository->multipleSave(... $tweets);
     }
 
-    private function showTweets(SymfonyStyle $io, Tweet ...$tweets) : void
+    private function showTweets(OutputLogger $io, Tweet ...$tweets) : void
     {
         if (empty($tweets)) {
             return;
