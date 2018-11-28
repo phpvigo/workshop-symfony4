@@ -16,14 +16,6 @@ class Hashtag
     use Uuidable;
 
     /**
-     * @ORM\Id()
-     * @ORM\Column(type="uuid", unique=true)
-     * @ORM\GeneratedValue(strategy="CUSTOM")
-     * @ORM\CustomIdGenerator(class="Ramsey\Uuid\Doctrine\UuidGenerator")
-     */
-    private $id;
-
-    /**
      * @ORM\Column(type="string", length=100, nullable=true)
      */
     private $name;
@@ -41,6 +33,7 @@ class Hashtag
     public function __construct()
     {
         $this->generateId();
+        $this->name = '';
         $this->tweet = new ArrayCollection();
     }
 
