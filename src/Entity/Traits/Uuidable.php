@@ -22,7 +22,7 @@ trait Uuidable
 
     private function generateId()
     {
-        $this->id = Uuid::uuid4()->toString();
+        $this->id = Uuid::uuid4();
     }
 
     public function getId() : Uuid
