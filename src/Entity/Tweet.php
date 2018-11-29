@@ -3,50 +3,18 @@
 namespace App\Entity;
 
 use App\Entity\Traits\Uuidable;
-use Doctrine\ORM\Mapping as ORM;
 
-/**
- * @ORM\Entity(repositoryClass="App\Repository\TweetRepository")
- */
 class Tweet
 {
 
     use Uuidable;
 
-    /**
-     * @ORM\Column(type="integer", unique=true)
-     */
     private $tweetId;
-
-    /**
-     * @ORM\Column(type="string", length=100)
-     */
     private $userName;
-
-    /**
-     * @ORM\Column(type="string", length=50)
-     */
     private $userImage;
-
-    /**
-     * @ORM\Column(type="string", length=100, nullable=true)
-     */
     private $originalTweetUsername;
-
-    /**
-     * @ORM\Column(type="text")
-     */
     private $content;
-
-    /**
-     * @ORM\Column(type="datetime")
-     */
     private $createdAt;
-
-    /**
-     * @ORM\ManyToOne(targetEntity="App\Entity\Hashtag", inversedBy="tweet")
-     * @ORM\JoinColumn(nullable=false)
-     */
     private $hashtag;
 
     public function __construct()

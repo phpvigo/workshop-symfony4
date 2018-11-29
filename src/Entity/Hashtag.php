@@ -5,29 +5,14 @@ namespace App\Entity;
 use App\Entity\Traits\Uuidable;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
-use Doctrine\ORM\Mapping as ORM;
 
-/**
- * @ORM\Entity(repositoryClass="App\Repository\HashtagRepository")
- */
 class Hashtag
 {
 
     use Uuidable;
 
-    /**
-     * @ORM\Column(type="string", length=100, nullable=true)
-     */
     private $name;
-
-    /**
-     * @ORM\OneToMany(targetEntity="App\Entity\Tweet", mappedBy="hashtag", orphanRemoval=true)
-     */
     private $tweet;
-
-    /**
-     * @ORM\Column(type="integer", nullable=true)
-     */
     private $lastTweet;
 
     public function __construct()
