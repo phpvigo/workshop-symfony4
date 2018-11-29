@@ -9,6 +9,7 @@
 namespace App\Controller;
 
 use App\Repository\HashtagRepository;
+use App\UseCase\ObtainAllHashtags;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 
@@ -23,9 +24,11 @@ class HashtagController
      */
     function listHashtags(HashtagRepository $hashtagRepository, \Twig_Environment $twig)
     {
+        $useCase = new ObtainAllHashtags($hashtagRepository);
+        $data = $useCase->dispatch();
 
         return (new Response())->setContent($twig->render('default/hashtag/listHashtags.html.twig', [
-            'hashtags' => $hashtagRepository->findAll(),
+            'hashtags' => $data->hashtags(),
         ]));
     }
 }

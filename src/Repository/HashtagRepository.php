@@ -3,6 +3,7 @@
 namespace App\Repository;
 
 use App\Entity\Hashtag;
+use App\ValueObject\HashtagCollection;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Symfony\Bridge\Doctrine\RegistryInterface;
 
@@ -12,7 +13,7 @@ use Symfony\Bridge\Doctrine\RegistryInterface;
  * @method Hashtag[]    findAll()
  * @method Hashtag[]    findBy(array $criteria, array $orderBy = null, $limit = null, $offset = null)
  */
-class HashtagRepository extends ServiceEntityRepository
+class HashtagRepository extends ServiceEntityRepository implements \App\Entity\HashtagRepository
 {
     public function __construct(RegistryInterface $registry)
     {
@@ -30,5 +31,10 @@ class HashtagRepository extends ServiceEntityRepository
         if ($flush) {
             $this->_em->flush();
         }
+    }
+
+    public function loadAllAndReturn() : HashtagCollection
+    {
+        return new HashtagCollection(... $this->findAll());
     }
 }
