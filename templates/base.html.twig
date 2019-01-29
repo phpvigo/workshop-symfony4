@@ -5,6 +5,10 @@
     <title>{% block title %}Welcome!{% endblock %}</title>
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css"
           integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@8.0.3/dist/sweetalert2.css">
+
+
     <script defer src="https://use.fontawesome.com/releases/v5.0.8/js/all.js"></script>
     {% block stylesheets %}{% endblock %}
 </head>
@@ -34,6 +38,15 @@
     <footer class="container text-center">
         <a href="https://www.phpvigo.com" target="_blank">Application sample for Symfony 4 PHPVigo Workshop - {{ "now" | date('Y') }}</a>
     </footer>
-{% block javascripts %}{% endblock %}
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@8"></script>
+    <script>
+        $(function(){
+            Swal.fire('Este sitio web va a preparar cookies.',
+                'Aceptadon o denegando vamos ha hacer exactamente lo mismo, esto solo es para <span class="text-danger font-weight-bold">molestar</span>'
+            );
+        });
+    </script>
+    {% block javascripts %}{% endblock %}
 </body>
 </html>
