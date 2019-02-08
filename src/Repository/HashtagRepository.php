@@ -25,7 +25,7 @@ class HashtagRepository extends ServiceEntityRepository implements \App\Entity\H
         return $this->findOneBy(['name' => $value]);
     }
 
-    public function save(Hashtag $hashtag, bool $flush = true) : void
+    public function save(Hashtag $hashtag, $flush = true) : void
     {
         $this->_em->persist($hashtag);
         if ($flush) {
