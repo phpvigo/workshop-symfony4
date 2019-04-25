@@ -15,8 +15,11 @@ class RandomTweetController
      * @param string $slug
      * @param TweetRepository $tweetRepository
      * @param HashtagRepository $hashtagRepository
-     *
-     * @return \Symfony\Component\HttpFoundation\Response
+     * @param \Twig_Environment $twig
+     * @return Response
+     * @throws \Twig\Error\LoaderError
+     * @throws \Twig\Error\RuntimeError
+     * @throws \Twig\Error\SyntaxError
      */
     public function getRandomTweet(string $slug, TweetRepository $tweetRepository, HashtagRepository $hashtagRepository, \Twig_Environment $twig)
     {

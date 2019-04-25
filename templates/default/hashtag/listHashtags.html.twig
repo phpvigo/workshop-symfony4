@@ -9,7 +9,7 @@
             <table id="hashtagsTable" class="table table-striped">
                 <thead class="thead-dark">
                     <tr>
-                        <th colspan="2">Hashtag</th>
+                        <th colspan="3">Hashtag</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -17,6 +17,11 @@
                 {% for hashtag in hashtags %}
                     <tr>
                         <td>{{  hashtag.getName() }}</td>
+                        <td class="text-right">
+                            <a href="/export/{{ hashtag.getId().toString() }}/json" class="btn btn-secondary btn-sm">JSON</a>
+                            <a href="/export/{{ hashtag.getId().toString() }}/csv" class="btn btn-secondary btn-sm">CSV</a>
+                            <a href="/export/{{ hashtag.getId().toString() }}/excel" class="btn btn-secondary btn-sm">Excel</a>
+                        </td>
                         <td class="text-right"><a href="/hashtag/{{ hashtag.getId().toString() }}" class="btn btn-secondary btn-sm">Random Tweet</a></td>
                     </tr>
                 {% endfor %}

@@ -19,8 +19,11 @@ class HashtagController
      * @Route("/", name="list_hashtags")
      *
      * @param HashtagRepository $hashtagRepository
-     *
-     * @return \Symfony\Component\HttpFoundation\Response
+     * @param \Twig_Environment $twig
+     * @return Response
+     * @throws \Twig\Error\LoaderError
+     * @throws \Twig\Error\RuntimeError
+     * @throws \Twig\Error\SyntaxError
      */
     function listHashtags(HashtagRepository $hashtagRepository, \Twig_Environment $twig)
     {
