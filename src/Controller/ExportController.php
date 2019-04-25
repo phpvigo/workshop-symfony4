@@ -95,7 +95,7 @@ class ExportController
                 }
                 $response = new StreamedResponse();
                 $response->headers->set('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
-                $response->headers->set('Content-Disposition', 'attachment; filename="hashtag-' . $hashtag->getName() . '-' . (new \DateTimeImmutable())->format('YmdHis') . '.xlsx"');
+                $response->headers->set('Content-Disposition', 'attachment; filename="hashtag-' . (new \DateTimeImmutable())->format('YmdHis') . '.xlsx"');
                 $response->setCallback(static function () use ($spreadsheet) {
                     $writer = new Xlsx($spreadsheet);
                     $writer->save('php://output');
