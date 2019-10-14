@@ -18,15 +18,15 @@ class ExportController
      * @param string $type
      * @param TweetRepository $tweetRepository
      * @param HashtagRepository $hashtagRepository
+     * @param ResponserFormatterContainer $responserFormatterContainer
      * @return Response
-     * @throws \Exception
      */
     public function exportHashtag(string $slug, string $type, TweetRepository $tweetRepository, HashtagRepository $hashtagRepository, ResponserFormatterContainer $responserFormatterContainer)
     {
-        $hashtag = $hashtagRepository->find($slug);
-        $tweets = $tweetRepository->findBy(['hashtag' => $hashtag]);
-
-        return $responserFormatterContainer->format($type, (new TransformTweetsOfHashtagIntoFormat())->dispatch($hashtag, $tweets, $type));
+        return $responserFormatterContainer->format(
+            $type,
+            (new TransformTweetsOfHashtagIntoFormat($hashtagRepository, $tweetRepository))->dispatch($slug, $type)
+        );
     }
 }
 

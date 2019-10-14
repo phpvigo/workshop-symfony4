@@ -3,15 +3,28 @@
 
 namespace App\UseCase;
 
-
+use App\Repository\HashtagRepository;
+use App\Repository\TweetRepository;
 use PhpOffice\PhpSpreadsheet\Spreadsheet;
 use PhpOffice\PhpSpreadsheet\Worksheet\Worksheet;
 use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
 
 class TransformTweetsOfHashtagIntoFormat
 {
-    public function dispatch($hashtag, $tweets, $type) : string
+    private $hashtagRepository;
+    private $tweetRepository;
+
+    public function __construct(HashtagRepository $hashtagRepository, TweetRepository $tweetRepository)
     {
+        $this->hashtagRepository = $hashtagRepository;
+        $this->tweetRepository = $tweetRepository;
+    }
+
+    public function dispatch(string $slug, string $type) : string
+    {
+        $hashtag = $this->hashtagRepository->find($slug);
+        $tweets = $this->tweetRepository->findBy(['hashtag' => $hashtag]);
+
         $return = null;
         switch ($type) {
             case "json":
