@@ -56,3 +56,8 @@ services:
       - '@App\Service\ResponserFormatterCsv'
       - '@App\Service\ResponserFormatterJson'
       - '@App\Service\ResponserFormatterExcel'
+
+  App\UseCase\TransformTweetsOfHashtagIntoFormat:
+    arguments:
+      $hashtagRepository: '@App\Repository\HashtagRepository'
+      $tweetRepository : '@App\Repository\TweetRepository'

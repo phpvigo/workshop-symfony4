@@ -2,8 +2,6 @@
 
 namespace App\Controller;
 
-use App\Repository\HashtagRepository;
-use App\Repository\TweetRepository;
 use App\Service\ResponserFormatterContainer;
 use App\UseCase\TransformTweetsOfHashtagIntoFormat;
 use Symfony\Component\HttpFoundation\Response;
@@ -16,18 +14,19 @@ class ExportController
      *
      * @param string $slug
      * @param string $type
-     * @param TweetRepository $tweetRepository
-     * @param HashtagRepository $hashtagRepository
+     * @param TransformTweetsOfHashtagIntoFormat $transformTweetsOfHashtagIntoFormat
      * @param ResponserFormatterContainer $responserFormatterContainer
      * @return Response
      */
-    public function exportHashtag(string $slug, string $type, TweetRepository $tweetRepository, HashtagRepository $hashtagRepository, ResponserFormatterContainer $responserFormatterContainer)
-    {
+    public function exportHashtag(
+        string $slug,
+        string $type,
+        TransformTweetsOfHashtagIntoFormat $transformTweetsOfHashtagIntoFormat,
+        ResponserFormatterContainer $responserFormatterContainer
+    ) {
         return $responserFormatterContainer->format(
             $type,
-            (new TransformTweetsOfHashtagIntoFormat($hashtagRepository, $tweetRepository))->dispatch($slug, $type)
+            $transformTweetsOfHashtagIntoFormat->dispatch($slug, $type)
         );
     }
 }
-
-
