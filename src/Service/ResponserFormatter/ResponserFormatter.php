@@ -3,8 +3,6 @@
 
 namespace App\Service\ResponserFormatter;
 
-use App\Service\ResponserFormatterContainer;
-use App\Service\ResponserFormatter\ResponserTypableFormatter;
 use Symfony\Component\HttpFoundation\Response;
 
 class ResponserFormatter implements ResponserFormatterContainer
