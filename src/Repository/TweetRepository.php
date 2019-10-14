@@ -48,7 +48,7 @@ class TweetRepository extends ServiceEntityRepository implements \App\Entity\Twe
     {
         $tweets = $this->findBy(['hashtag' => $hashtag]);
 
-        return new TweetCollection(... $tweets->toArray());
+        return new TweetCollection(... $tweets);
     }
 
 
