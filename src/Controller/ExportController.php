@@ -28,33 +28,33 @@ class ExportController
         $hashtag = $hashtagRepository->find($slug);
         $tweets = $tweetRepository->findBy(['hashtag' => $hashtag]);
 
+        $response = new Response();
         switch ($type) {
             case "json":
-                return $this->responseJson($tweets);
+                $response->headers->set('Content-Type', 'application/json');
+                $response->setContent($this->responseJson($tweets));
                 break;
 
             case "csv":
-                return $this->responseCsv($tweets);
+                $response->setContent($this->responseCsv($tweets));
                 break;
-
 
             case "excel":
-                return $this->responseExcel($tweets, $hashtag);
+                $response->headers->set('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+                $response->headers->set('Content-Disposition', 'attachment; filename="hashtag-' . (new \DateTimeImmutable())->format('YmdHis') . '.xlsx"');
+                $response->sendHeaders();
+                $response->setContent($this->responseExcel($tweets, $hashtag));
                 break;
         }
-
-
-        return (new Response());
+        return $response;
     }
 
     /**
      * @param array $tweets
-     * @return Response
+     * @return string
      */
-    private function responseJson(array $tweets): Response
+    private function responseJson(array $tweets): string
     {
-        $response = new Response();
-        $response->headers->set('Content-Type', 'application/json');
         $data = [];
         foreach ($tweets AS $tweet) {
             $data[] = [
@@ -67,18 +67,15 @@ class ExportController
             ];
         }
 
-        $response->setContent(json_encode($data));
-        return $response;
+        return json_encode($data);
     }
 
     /**
      * @param array $tweets
-     * @return Response
+     * @return string
      */
-    private function responseCsv(array $tweets): Response
+    private function responseCsv(array $tweets): string
     {
-        $response = new Response();
-
         $csvTempFile = fopen('php://memory', 'r+');
         fputcsv($csvTempFile, ['id', 'username', 'user_image', 'content', 'link', 'date']);
         foreach ($tweets AS $tweet) {
@@ -87,17 +84,16 @@ class ExportController
         rewind($csvTempFile);
         $csv_line = stream_get_contents($csvTempFile);
         fclose($csvTempFile);
-        $response->setContent($csv_line);
-        return $response;
+        return $csv_line;
     }
 
     /**
      * @param array $tweets
      * @param \App\Entity\Hashtag|null $hashtag
-     * @return StreamedResponse
+     * @return string
      * @throws \PhpOffice\PhpSpreadsheet\Exception
      */
-    private function responseExcel(array $tweets, ?\App\Entity\Hashtag $hashtag): ExportController
+    private function responseExcel(array $tweets, ?\App\Entity\Hashtag $hashtag): string
     {
         $spreadsheet = new Spreadsheet();
         $spreadsheet->removeSheetByIndex(0);
@@ -127,14 +123,14 @@ class ExportController
             $worksheet->getColumnDimension('F')->setAutoSize(true);
             $i++;
         }
-        $response = new StreamedResponse();
-        $response->headers->set('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
-        $response->headers->set('Content-Disposition', 'attachment; filename="hashtag-' . (new \DateTimeImmutable())->format('YmdHis') . '.xlsx"');
-        $response->setCallback(static function () use ($spreadsheet) {
-            $writer = new Xlsx($spreadsheet);
-            $writer->save('php://output');
-        });
 
-        return $response->send();
+        ob_start();
+        $writer = new Xlsx($spreadsheet);
+        $writer->save('php://output');
+        $content = ob_get_flush();
+
+        return $content;
     }
 }
+
+
