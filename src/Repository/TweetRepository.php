@@ -4,6 +4,7 @@ namespace App\Repository;
 
 use App\Entity\Hashtag;
 use App\Entity\Tweet;
+use App\Entity\TweetCollection;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Symfony\Bridge\Doctrine\RegistryInterface;
 
@@ -13,7 +14,7 @@ use Symfony\Bridge\Doctrine\RegistryInterface;
  * @method Tweet[]    findAll()
  * @method Tweet[]    findBy(array $criteria, array $orderBy = null, $limit = null, $offset = null)
  */
-class TweetRepository extends ServiceEntityRepository
+class TweetRepository extends ServiceEntityRepository implements \App\Entity\TweetRepository
 {
     public function __construct(RegistryInterface $registry)
     {
@@ -42,4 +43,13 @@ class TweetRepository extends ServiceEntityRepository
         }
         $this->_em->flush();
     }
+
+    public function allByHashtag(Hashtag $hashtag): TweetCollection
+    {
+        $tweets = $this->findBy(['hashtag' => $hashtag]);
+
+        return new TweetCollection(... $tweets->toArray());
+    }
+
+
 }
