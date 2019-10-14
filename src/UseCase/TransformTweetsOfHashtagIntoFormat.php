@@ -3,8 +3,9 @@
 
 namespace App\UseCase;
 
-use App\Repository\HashtagRepository;
-use App\Repository\TweetRepository;
+use App\Entity\HashtagRepository;
+use App\Entity\TweetCollection;
+use App\Entity\TweetRepository;
 use PhpOffice\PhpSpreadsheet\Spreadsheet;
 use PhpOffice\PhpSpreadsheet\Worksheet\Worksheet;
 use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
@@ -22,8 +23,8 @@ class TransformTweetsOfHashtagIntoFormat
 
     public function dispatch(string $slug, string $type) : string
     {
-        $hashtag = $this->hashtagRepository->find($slug);
-        $tweets = $this->tweetRepository->findBy(['hashtag' => $hashtag]);
+        $hashtag = $this->hashtagRepository->bySlugOrFail($slug);
+        $tweets = $this->tweetRepository->allByHashtag($hashtag);
 
         $return = null;
         switch ($type) {
@@ -43,10 +44,10 @@ class TransformTweetsOfHashtagIntoFormat
     }
 
     /**
-     * @param array $tweets
+     * @param TweetCollection $tweets
      * @return string
      */
-    private function responseJson(array $tweets): string
+    private function responseJson(TweetCollection $tweets): string
     {
         $data = [];
         foreach ($tweets AS $tweet) {
@@ -64,10 +65,10 @@ class TransformTweetsOfHashtagIntoFormat
     }
 
     /**
-     * @param array $tweets
+     * @param TweetCollection $tweets
      * @return string
      */
-    private function responseCsv(array $tweets): string
+    private function responseCsv(TweetCollection $tweets): string
     {
         $csvTempFile = fopen('php://memory', 'r+');
         fputcsv($csvTempFile, ['id', 'username', 'user_image', 'content', 'link', 'date']);
@@ -81,12 +82,12 @@ class TransformTweetsOfHashtagIntoFormat
     }
 
     /**
-     * @param array $tweets
+     * @param TweetCollection $tweets
      * @param \App\Entity\Hashtag|null $hashtag
      * @return string
      * @throws \PhpOffice\PhpSpreadsheet\Exception
      */
-    private function responseExcel(array $tweets, ?\App\Entity\Hashtag $hashtag): string
+    private function responseExcel(TweetCollection $tweets, ?\App\Entity\Hashtag $hashtag): string
     {
         $spreadsheet = new Spreadsheet();
         $spreadsheet->removeSheetByIndex(0);
