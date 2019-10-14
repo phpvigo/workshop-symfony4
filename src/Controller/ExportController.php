@@ -5,9 +5,6 @@ namespace App\Controller;
 use App\Repository\HashtagRepository;
 use App\Repository\TweetRepository;
 use App\UseCase\TransformTweetsOfHashtagIntoFormat;
-use PhpOffice\PhpSpreadsheet\Spreadsheet;
-use PhpOffice\PhpSpreadsheet\Worksheet\Worksheet;
-use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\StreamedResponse;
 use Symfony\Component\Routing\Annotation\Route;
@@ -21,8 +18,8 @@ class ExportController
      * @param string $type
      * @param TweetRepository $tweetRepository
      * @param HashtagRepository $hashtagRepository
-     * @return Response|StreamedResponse
-     * @throws \PhpOffice\PhpSpreadsheet\Exception
+     * @return Response
+     * @throws \Exception
      */
     public function exportHashtag(string $slug, string $type, TweetRepository $tweetRepository, HashtagRepository $hashtagRepository)
     {
@@ -33,20 +30,21 @@ class ExportController
         switch ($type) {
             case "json":
                 $response->headers->set('Content-Type', 'application/json');
-                $response->setContent((new TransformTweetsOfHashtagIntoFormat())->dispatch($hashtag, $tweets, $type));
                 break;
 
             case "csv":
-                $response->setContent((new TransformTweetsOfHashtagIntoFormat())->dispatch($hashtag, $tweets, $type));
+                $response->headers->set('Content-Type', 'text/csv');
                 break;
 
             case "excel":
                 $response->headers->set('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
                 $response->headers->set('Content-Disposition', 'attachment; filename="hashtag-' . (new \DateTimeImmutable())->format('YmdHis') . '.xlsx"');
                 $response->sendHeaders();
-                $response->setContent((new TransformTweetsOfHashtagIntoFormat())->dispatch($hashtag, $tweets, $type));
                 break;
         }
+
+        $response->setContent((new TransformTweetsOfHashtagIntoFormat())->dispatch($hashtag, $tweets, $type));
+
         return $response;
     }
 
