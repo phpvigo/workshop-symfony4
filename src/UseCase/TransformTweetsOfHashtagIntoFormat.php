@@ -107,7 +107,7 @@ class TransformTweetsOfHashtagIntoFormat
         ob_start();
         $writer = new Xlsx($spreadsheet);
         $writer->save('php://output');
-        $content = ob_get_flush();
+        $content = ob_get_clean();
 
         return $content;
     }

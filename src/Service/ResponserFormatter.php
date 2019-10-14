@@ -20,10 +20,10 @@ class ResponserFormatter implements ResponserFormatterContainer
         }
     }
 
-    public function format(string $format): Response
+    public function format(string $format, string $content): Response
     {
         $this->checkIfFormatIsAvailableOrFail($format);
-        return $this->formaters[$format]->format();
+        return $this->formaters[$format]->format($content);
     }
 
     private function checkIfFormatIsAvailableOrFail(string $format) : void

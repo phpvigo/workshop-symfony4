@@ -26,10 +26,7 @@ class ExportController
         $hashtag = $hashtagRepository->find($slug);
         $tweets = $tweetRepository->findBy(['hashtag' => $hashtag]);
 
-        $response = $responserFormatterContainer->format($type);
-        $response->setContent((new TransformTweetsOfHashtagIntoFormat())->dispatch($hashtag, $tweets, $type));
-
-        return $response;
+        return $responserFormatterContainer->format($type, (new TransformTweetsOfHashtagIntoFormat())->dispatch($hashtag, $tweets, $type));
     }
 }
 

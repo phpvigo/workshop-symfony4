@@ -8,10 +8,12 @@ use Symfony\Component\HttpFoundation\Response;
 
 class ResponserFormatterJson implements ResponserTypableFormatter
 {
-    public function format(): Response
+    public function format(string $content): Response
     {
         $response = new Response();
         $response->headers->set('Content-Type', 'application/json');
+        $response->setContent($content);
+
         return $response;
     }
 
