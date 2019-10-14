@@ -2,7 +2,7 @@
 
 namespace App\Controller;
 
-use App\Service\ResponserFormatterContainer;
+use App\Service\ResponserFormatter\ResponserFormatterContainer;
 use App\UseCase\TransformTweetsOfHashtagIntoFormat;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;

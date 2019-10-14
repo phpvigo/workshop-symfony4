@@ -1,9 +1,10 @@
 <?php
 
 
-namespace App\Service;
+namespace App\Service\ResponserFormatter;
 
 
+use App\Service\ResponserFormatter\ResponserTypableFormatter;
 use Symfony\Component\HttpFoundation\Response;
 
 class ResponserFormatterExcel implements ResponserTypableFormatter

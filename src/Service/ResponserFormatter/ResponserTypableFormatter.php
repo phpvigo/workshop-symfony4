@@ -1,7 +1,7 @@
 <?php
 
 
-namespace App\Service;
+namespace App\Service\ResponserFormatter;
 
 use Symfony\Component\HttpFoundation\Response;
 

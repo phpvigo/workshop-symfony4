@@ -51,11 +51,11 @@ services:
       - { base_uri: '%app.twitter_client.base_uri%', handler: '@app.twitter_client.handler_stack'}
 
 
-  App\Service\ResponserFormatter:
+  App\Service\ResponserFormatter\ResponserFormatter:
     arguments:
-      - '@App\Service\ResponserFormatterCsv'
-      - '@App\Service\ResponserFormatterJson'
-      - '@App\Service\ResponserFormatterExcel'
+      - '@App\Service\ResponserFormatter\ResponserFormatterCsv'
+      - '@App\Service\ResponserFormatter\ResponserFormatterJson'
+      - '@App\Service\ResponserFormatter\ResponserFormatterExcel'
 
   App\UseCase\TransformTweetsOfHashtagIntoFormat:
     arguments:
