@@ -59,8 +59,8 @@ services:
 
   App\UseCase\TransformTweetsOfHashtagIntoFormat:
     arguments:
-      $hashtagRepository: '@App\Entity\HashtagRepository'
-      $tweetRepository : '@App\Entity\TweetRepository'
+      $hashtagRepository: '@App\Repository\HashtagRepository'
+      $tweetRepository : '@App\Repository\TweetRepository'
 
   App\Service\TweetTransformChain\TweetTransformChainFactory:
     arguments:
