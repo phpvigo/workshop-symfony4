@@ -14,4 +14,5 @@ interface HashtagRepository
 {
     public function loadAllAndReturn() : HashtagCollection;
     public function save(Hashtag $hashtag, bool $flush = true) : void;
+    public function bySlugOrFail(string $slug) :  Hashtag;
 }

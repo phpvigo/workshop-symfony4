@@ -3,6 +3,7 @@
 namespace App\Repository;
 
 use App\Entity\Hashtag;
+use App\Entity\NotFoundHashtagException;
 use App\ValueObject\HashtagCollection;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Symfony\Bridge\Doctrine\RegistryInterface;
@@ -37,4 +38,17 @@ class HashtagRepository extends ServiceEntityRepository implements \App\Entity\H
     {
         return new HashtagCollection(... $this->findAll());
     }
+
+    public function bySlugOrFail(string $slug): Hashtag
+    {
+        $hashtag = $this->find($slug);
+
+        if  ($hashtag === null) {
+            throw new NotFoundHashtagException($slug);
+        }
+
+        return $hashtag;
+    }
+
+
 }
