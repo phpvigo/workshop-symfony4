@@ -2,6 +2,7 @@
 
 namespace App\Service;
 
+use App\ValueObject\TwitterSearch;
 use GuzzleHttp\Client;
 
 class TwitterClient extends Client
@@ -14,29 +15,26 @@ class TwitterClient extends Client
     /**
      * Find tweets by text.
      *
-     * @param $text
-     * @param bool   $include_entities
-     * @param string $result_type
-     * @param int    $count
-     *
-     * @return array
+     * @param TwitterSearch $twitterSearch
+     * @return bool|mixed
      */
     public function findTweetsWith(
-        $text,
-        $include_entities = false,
-        $result_type = 'recent',
-        $count = 4
+        TwitterSearch $twitterSearch
     ) {
         try {
-            $JSONResponse = $this->get('search/tweets.json', [
+
+            $options = [
                 'auth' => 'oauth',
                 'query' => [
-                    'q' => $text,
-                    'include_entities' => $include_entities,
-                    'result_type' => $result_type,
-                    'count' => $count,
-                ],
-            ])->getBody()->getContents();
+                    'q' => $twitterSearch->hashtag()->getName(),
+                    'include_entities' => $twitterSearch->includeEntities(),
+                    'result_type' => $twitterSearch->resultType(),
+                    'count' => $twitterSearch->count(),
+                    'since_id' => $twitterSearch->hashtag()->getLastTweet()
+                ]
+            ];
+
+            $JSONResponse = $this->get('search/tweets.json', $options)->getBody()->getContents();
 
             return json_decode($JSONResponse);
         } catch (\Exception $e) {

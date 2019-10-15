@@ -2,27 +2,35 @@
 
 namespace App\Command;
 
+use App\Entity\Hashtag;
 use App\Entity\Tweet;
+use App\Repository\HashtagRepository;
+use App\Repository\TweetRepository;
 use App\Service\TwitterClient;
-use Doctrine\ORM\EntityManagerInterface;
+use App\Utils\OutputLogger;
+use App\ValueObject\TwitterSearch;
+use Psr\Log\LoggerInterface;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
-use Symfony\Component\Console\Style\SymfonyStyle;
 
 class TweetFetchCommand extends Command
 {
     protected static $defaultName = 'tweet:fetch';
 
     private $twitterClient;
-    private $entityManager;
+    private $tweetRepository;
+    private $hashtagRepository;
+    private $logger;
 
-    public function __construct(TwitterClient $twitterClient, EntityManagerInterface $entityManager)
+    public function __construct(TwitterClient $twitterClient, TweetRepository $tweetRepository, HashtagRepository $hashtagRepository, LoggerInterface $logger)
     {
         $this->twitterClient = $twitterClient;
-        $this->entityManager = $entityManager;
+        $this->tweetRepository = $tweetRepository;
+        $this->hashtagRepository = $hashtagRepository;
+        $this->logger = $logger;
         parent::__construct();
     }
 
@@ -54,58 +62,120 @@ EOD
 
     protected function execute(InputInterface $input, OutputInterface $output)
     {
-        $io = new SymfonyStyle($input, $output);
+        $io = new OutputLogger($input, $output, $this->logger);
+        $persist = !$input->getOption('no-persist');
 
-        $text = $input->getArgument('text');
-        $result_type = $input->getArgument('result_type');
-        $count = $input->getArgument('count');
+        $twitterSearch = $this->processInputAndReturnTwitterSearch($input, $persist);
 
-        $include_entities = $input->getOption('include-entities');
+        $io->title(sprintf('Searching tweets for: %s', $twitterSearch->hashtag()->getName()));
 
-        $io->title(sprintf('Searching tweets for: %s', $text));
+        $tweets = $this->buildTweets(
+            $this->twitterClient->findTweetsWith($twitterSearch)->statuses,
+            $twitterSearch->hashtag(),
+            $io
+        );
 
-        $tweets = $this->twitterClient->findTweetsWith($text, $include_entities, $result_type, $count);
-
-        if ($tweets) {
-            foreach ($tweets->statuses as $index => $tweet) {
-                $io->section(sprintf('Tweet #%d', $index + 1));
-                $io->writeln(sprintf(
-                    '%s by @%s',
-                    $tweet->text,
-                    $tweet->user->screen_name
-                ));
-            }
-
-            if (!$input->getOption('no-persist')) {
-                $this->saveTweets($tweets);
-
-                $io->note(sprintf('Saved %d tweets!', count($tweets->statuses)));
-            }
-        } else {
-            $io->error('No tweets found!');
-        }
+        $this->persistDataIfIsEnabled($persist, $io, $twitterSearch->hashtag(), ... $tweets);
+        $this->showTweets($io, ... $tweets);
 
         $io->success('Operation finished!');
     }
 
-    private function saveTweets($tweets)
+    private function processInputAndReturnTwitterSearch(InputInterface $input, bool $persist) : TwitterSearch
     {
-        foreach ($tweets->statuses as $tweet) {
-            $aTweet = new Tweet();
+        return new TwitterSearch(
+            $this->obtainHashtagFromText($input->getArgument('text'), $persist),
+            (bool) $input->getOption('include-entities'),
+            (string) $input->getArgument('result_type'),
+            (int) $input->getArgument('count')
+        );
+    }
 
-            $originalTweetUsername = isset($tweet->retweeted_status) ? $tweet->retweeted_status->user->screen_name : null;
+    private function obtainHashtagFromText(string $text, bool $persist) : Hashtag
+    {
+        $hashtag = $this->hashtagRepository->findOneByName($text);
+        return !empty($hashtag) ? $hashtag : $this->constructHashtagAndReturn($text, $persist);
+    }
 
-            $aTweet
-                ->setTweetId($tweet->id)
-                ->setContent($tweet->text)
-                ->setUserName($tweet->user->screen_name)
-                ->setOriginalTweetUsername($originalTweetUsername)
-                ->setUserImage($tweet->user->profile_image_url)
-                ->setCreatedAt(new \DateTime($tweet->created_at));
+    private function constructHashtagAndReturn(string $text, bool $persist) : Hashtag
+    {
+        $hashtag = Hashtag::fromName($text);
+        if ($persist === true) {
+            $this->hashtagRepository->save($hashtag);
+        }
+        return $hashtag;
+    }
 
-            $this->entityManager->persist($aTweet);
+    private function buildTweets(array $tweets, Hashtag $hashtag, OutputLogger $io) : array
+    {
+        if (empty($tweets)) {
+            $io->error('No tweets found!');
+            return [];
         }
 
-        $this->entityManager->flush();
+        $tweetsToSave = [];
+
+        foreach ($tweets AS $tweet) {
+            $tweetsToSave[] = Tweet::buildAndAttachToHashtag($tweet, $hashtag);
+        }
+
+        return $tweetsToSave;
+    }
+
+    private function persistDataIfIsEnabled(bool $persist, OutputLogger $io, Hashtag $hashtag, Tweet ... $tweets) : void
+    {
+        if (!$persist) {
+            return;
+        }
+
+        $this->updateHashtagLastTweet($hashtag, ... $tweets);
+        $this->saveTweets(... $tweets);
+        $io->note(sprintf('Saved %d tweets!', count($tweets)));
+    }
+
+    private function updateHashtagLastTweet(Hashtag $hashtag, Tweet ...$tweets)
+    {
+        $lastTweetId = $this->obtainMaxTweetId(...$tweets);
+
+        if ($lastTweetId > $hashtag->getLastTweet()) {
+            $hashtag->setLastTweet($lastTweetId);
+        }
+
+        $this->hashtagRepository->save($hashtag);
+    }
+
+    private function obtainMaxTweetid(Tweet ... $tweets) : int
+    {
+        $ids = [];
+        foreach ($tweets AS $tweet) {
+            $ids[] = (int) $tweet->getTweetId();
+        }
+        $ids[] = 0;
+        return max($ids);
+    }
+
+    private function saveTweets(Tweet ...$tweets)
+    {
+        if (empty($tweets)) {
+            return;
+        }
+
+        $this->tweetRepository->multipleSave(... $tweets);
+    }
+
+    private function showTweets(OutputLogger $io, Tweet ...$tweets) : void
+    {
+        if (empty($tweets)) {
+            return;
+        }
+
+        foreach ($tweets as $index => $tweet) {
+            $io->section(sprintf('Tweet #%d', $index + 1));
+            $io->writeln(sprintf(
+                '%s by @%s',
+                $tweet->getContent(),
+                $tweet->getUserName()
+            ));
+        }
     }
 }
