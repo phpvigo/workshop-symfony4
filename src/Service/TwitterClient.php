@@ -22,7 +22,6 @@ class TwitterClient extends Client
         TwitterSearch $twitterSearch
     ) {
         try {
-
             $options = [
                 'auth' => 'oauth',
                 'query' => [

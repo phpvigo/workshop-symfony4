@@ -6,7 +6,6 @@ use App\Entity\Traits\Uuidable;
 
 class Tweet
 {
-
     use Uuidable;
 
     private $tweetId;

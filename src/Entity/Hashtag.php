@@ -8,7 +8,6 @@ use Doctrine\Common\Collections\Collection;
 
 class Hashtag
 {
-
     use Uuidable;
 
     private $name;

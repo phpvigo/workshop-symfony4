@@ -3,7 +3,6 @@
 
 namespace App\Service\ResponserFormatter;
 
-
 use App\Service\ResponserFormatter\ResponserTypableFormatter;
 use Symfony\Component\HttpFoundation\Response;
 
@@ -21,5 +20,4 @@ class ResponserFormatterCsv implements ResponserTypableFormatter
     {
         return 'csv';
     }
-
 }

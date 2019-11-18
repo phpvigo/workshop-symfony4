@@ -115,7 +115,7 @@ EOD
 
         $tweetsToSave = [];
 
-        foreach ($tweets AS $tweet) {
+        foreach ($tweets as $tweet) {
             $tweetsToSave[] = Tweet::buildAndAttachToHashtag($tweet, $hashtag);
         }
 
@@ -147,7 +147,7 @@ EOD
     private function obtainMaxTweetid(Tweet ... $tweets) : int
     {
         $ids = [];
-        foreach ($tweets AS $tweet) {
+        foreach ($tweets as $tweet) {
             $ids[] = (int) $tweet->getTweetId();
         }
         $ids[] = 0;
