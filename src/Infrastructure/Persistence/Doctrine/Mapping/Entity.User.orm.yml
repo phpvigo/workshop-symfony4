@@ -1,0 +1,21 @@
+App\Entity\User:
+  type: entity
+  table: user
+  repositoryClass: App\Repository\UserRepository
+  id:
+    id:
+      type: uuid
+      generator:
+        strategy: CUSTOM
+      customIdGenerator:
+        class: Ramsey\Uuid\Doctrine\UuidGenerator
+  fields:
+    username:
+      type: string
+      length: 255
+    password:
+      type: string
+      length: 255
+    roles:
+      type: simple_array
+      length: 255
