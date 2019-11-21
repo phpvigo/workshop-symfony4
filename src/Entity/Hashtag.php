@@ -8,7 +8,10 @@ use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 
 /**
- * @ApiResource
+ * @ApiResource(
+ *     itemOperations={"get"},
+ *     collectionOperations={"get"}
+ * )
  */
 class Hashtag
 {

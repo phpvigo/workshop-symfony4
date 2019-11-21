@@ -6,7 +6,10 @@ use ApiPlatform\Core\Annotation\ApiResource;
 use App\Entity\Traits\Uuidable;
 
 /**
- * @ApiResource
+ * @ApiResource(
+ *     itemOperations={"get"},
+ *     collectionOperations={"get"}
+ * )
  */
 class Tweet
 {
