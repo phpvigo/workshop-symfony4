@@ -6,11 +6,15 @@ use ApiPlatform\Core\Annotation\ApiResource;
 use App\Entity\Traits\Uuidable;
 use Symfony\Component\Security\Core\User\UserInterface;
 use Symfony\Component\Serializer\Annotation\Groups;
+use Symfony\Component\Validator\Constraints as Assert;
 
 /**
  * @ApiResource(
  *     itemOperations={"get"},
- *     collectionOperations={"get", "post"},
+ *     collectionOperations={
+ *     "get",
+ *     "post"
+ * },
  *     normalizationContext={
  *       "groups"={"read"}
  *     }
@@ -26,8 +30,18 @@ class User implements UserInterface
 
     /**
      * @Groups({"read"})
+     * @Assert\NotBlank
+     * @Assert\Length(min="5", max="100")
      */
     private $username;
+
+    /**
+     * @Assert\NotBlank
+     * @Assert\Regex(
+     *     pattern="/(?=.*[A-Z])(?=.*[a-z])(?=.*[0-9]).{7,}/",
+     *     message="Password must be seven characters long and contain at least one digit, one upper case letter and one lowercase letter"
+     * )
+     */
     private $password;
     private $roles;
 
