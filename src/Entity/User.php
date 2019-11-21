@@ -5,11 +5,15 @@ namespace App\Entity;
 use ApiPlatform\Core\Annotation\ApiResource;
 use App\Entity\Traits\Uuidable;
 use Symfony\Component\Security\Core\User\UserInterface;
+use Symfony\Component\Serializer\Annotation\Groups;
 
 /**
  * @ApiResource(
  *     itemOperations={"get"},
- *     collectionOperations={"get"}
+ *     collectionOperations={"get"},
+ *     normalizationContext={
+ *       "groups"={"read"}
+ *     }
  * )
  */
 class User implements UserInterface
@@ -20,6 +24,9 @@ class User implements UserInterface
 
     use Uuidable;
 
+    /**
+     * @Groups({"read"})
+     */
     private $username;
     private $password;
     private $roles;
