@@ -1,4 +1,8 @@
 api_platform:
+    title: 'PHPVigo LicenseDrawer'
+    description: 'Exposing LicenseDrawer Workshop through an API'
+    version: '0.1'
+    show_webby: false
     mapping:
         paths: ['%kernel.project_dir%/src/Entity']
     patch_formats:
