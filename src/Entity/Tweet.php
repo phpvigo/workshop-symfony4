@@ -2,8 +2,12 @@
 
 namespace App\Entity;
 
+use ApiPlatform\Core\Annotation\ApiResource;
 use App\Entity\Traits\Uuidable;
 
+/**
+ * @ApiResource
+ */
 class Tweet
 {
     use Uuidable;
