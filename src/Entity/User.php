@@ -11,13 +11,17 @@ use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
 
 /**
  * @ApiResource(
- *     itemOperations={"get"},
+ *     security="is_granted('ROLE_ADMIN')",
+ *     itemOperations={
+ *          "get"={"security"="object == user"},
+ *          "put"
+ *     },
  *     collectionOperations={
- *     "get",
- *     "post"
- * },
+ *          "get",
+ *          "post"
+ *     },
  *     normalizationContext={
- *       "groups"={"read"}
+ *          "groups"={"read"}
  *     }
  * )
  * @UniqueEntity("username")
