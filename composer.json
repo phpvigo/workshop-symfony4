@@ -8,6 +8,7 @@
         "easycorp/easyadmin-bundle": "^1.17",
         "guzzlehttp/guzzle": "^6.3",
         "guzzlehttp/oauth-subscriber": "^0.3.0",
+        "lexik/jwt-authentication-bundle": "^2.6",
         "phpoffice/phpspreadsheet": "^1.6",
         "ramsey/uuid": "^3.7",
         "ramsey/uuid-doctrine": "^1.4",
