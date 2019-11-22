@@ -8,20 +8,38 @@ use Symfony\Component\Security\Core\User\UserInterface;
 use Symfony\Component\Serializer\Annotation\Groups;
 use Symfony\Component\Validator\Constraints as Assert;
 use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
+use App\Controller\ResetPasswordAction;
 
 /**
  * @ApiResource(
- *     security="is_granted('ROLE_ADMIN')",
  *     itemOperations={
- *          "get"={"security"="object == user"},
- *          "put"
+ *          "get"={
+ *              "security"="is_granted('ROLE_ADMIN') or object == user"
+ *          },
+ *          "put"= {
+ *              "security"="is_granted('ROLE_ADMIN')"
+ *          },
+ *          "put_reset_password"= {
+ *              "security"="is_granted('ROLE_USER') and object == user",
+ *              "path"="/users/{id}/reset-password",
+ *              "method"="PUT",
+ *              "controller"=ResetPasswordAction::class,
+ *              "denormalization_context"={
+ *                  "groups"={"put-reset-password"}
+ *              },
+ *              "openapi_context"= {
+ *                  "summary"="Reset password"
+ *              },
+ *              "validation_groups"={"put-reset-password"}
+ *          }
  *     },
  *     collectionOperations={
- *          "get",
- *          "post"
- *     },
- *     normalizationContext={
- *          "groups"={"read"}
+ *          "get": {
+ *              "security"="is_granted('ROLE_ADMIN')",
+ *          },
+ *          "post": {
+ *              "security"="is_granted('ROLE_ADMIN')"
+ *          }
  *     }
  * )
  * @UniqueEntity("username")
@@ -58,6 +76,24 @@ class User implements UserInterface
      * )
      */
     private $retypedPassword;
+
+    /**
+     * @Groups({"put-reset-password"})
+     * @Assert\NotBlank(groups={"put-reset-password"})
+     */
+    private $oldPassword;
+
+    /**
+     * @Groups({"put-reset-password"})
+     * @Assert\NotBlank(groups={"put-reset-password"})
+     */
+    private $newPassword;
+
+    /**
+     * @Groups({"put-reset-password"})
+     * @Assert\NotBlank(groups={"put-reset-password"})
+     */
+    private $retypeNewPassword;
 
     private $roles;
 
@@ -170,5 +206,61 @@ class User implements UserInterface
     {
     }
 
+    /**
+     * @return mixed
+     */
+    public function getOldPassword()
+    {
+        return $this->oldPassword;
+    }
+
+    /**
+     * @param mixed $oldPassword
+     * @return User
+     */
+    public function setOldPassword($oldPassword)
+    {
+        $this->oldPassword = $oldPassword;
+
+        return $this;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getNewPassword()
+    {
+        return $this->newPassword;
+    }
+
+    /**
+     * @param mixed $newPassword
+     * @return User
+     */
+    public function setNewPassword($newPassword)
+    {
+        $this->newPassword = $newPassword;
+
+        return $this;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getRetypeNewPassword()
+    {
+        return $this->retypeNewPassword;
+    }
+
+    /**
+     * @param mixed $retypeNewPassword
+     * @return User
+     */
+    public function setRetypeNewPassword($retypeNewPassword)
+    {
+        $this->retypeNewPassword = $retypeNewPassword;
+
+        return $this;
+    }
 
 }
