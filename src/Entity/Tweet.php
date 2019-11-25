@@ -9,6 +9,7 @@ use App\Controller\RandomTweetForHashtagAction;
 use ApiPlatform\Core\Bridge\Doctrine\Orm\Filter\SearchFilter;
 use ApiPlatform\Core\Bridge\Doctrine\Orm\Filter\OrderFilter;
 use ApiPlatform\Core\Bridge\Doctrine\Orm\Filter\DateFilter;
+use App\Controller\TweetFilteredByStringAction;
 
 /**
  * @ApiResource(
@@ -34,7 +35,14 @@ use ApiPlatform\Core\Bridge\Doctrine\Orm\Filter\DateFilter;
  *              "read"=false
  *          }
  *      },
- *     collectionOperations={"get"}
+ *     collectionOperations={
+ *          "get",
+ *          "get-filtered-by-string"={
+ *              "security"="is_granted('ROLE_ADMIN')",
+ *              "path"="tweets/global/search",
+ *              "method"="GET"
+ *          }
+ *      }
  * )
  * @ApiFilter(SearchFilter::class, properties={
  *          "id":"exact",
@@ -238,7 +246,7 @@ class Tweet
 
         return $this;
     }
-    
+
     public function getHashtagName()
     {
         return $this->getHashtag()->getName();
