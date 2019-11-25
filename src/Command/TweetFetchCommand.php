@@ -18,7 +18,7 @@ use Symfony\Component\Console\Output\OutputInterface;
 
 class TweetFetchCommand extends Command
 {
-    protected static $defaultName = 'tweet:fetch';
+    protected static $defaultName = 'licensedrawer:tweet:fetch';
 
     private $twitterClient;
     private $tweetRepository;
