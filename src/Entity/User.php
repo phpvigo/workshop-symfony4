@@ -36,7 +36,7 @@ use App\Controller\CurrentLoggedUserAction;
  *              "validation_groups"={"write"}
  *          },
  *          "put_reset_password"= {
- *              "security"="is_granted('ROLE_USER') and object == user",
+ *              "security"="is_granted('ROLE_USER') and object == user || is_granted('ROLE_ADMIN')",
  *              "path"="/users/{id}/reset-password",
  *              "method"="PUT",
  *              "controller"=ResetPasswordAction::class,
@@ -53,10 +53,10 @@ use App\Controller\CurrentLoggedUserAction;
  *          }
  *     },
  *     collectionOperations={
- *          "get": {
+ *          "get"={
  *              "security"="is_granted('ROLE_ADMIN')",
  *          },
- *          "post": {
+ *          "post"={
  *              "security"="is_granted('ROLE_ADMIN')",
  *              "validation_groups"={"write"}
  *          }
@@ -105,13 +105,13 @@ class User implements UserInterface
      * @Groups({"put-reset-password"})
      * @Assert\NotBlank(groups={"put-reset-password"})
      * @Assert\Expression("", groups={"put-reset-password"})
+     * @UserPassword
      */
     private $oldPassword;
 
     /**
      * @Groups({"put-reset-password"})
      * @Assert\NotBlank(groups={"put-reset-password"})
-     * @UserPassword
      */
     private $newPassword;
 
