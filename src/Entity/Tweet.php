@@ -15,7 +15,9 @@ use App\Controller\TweetFilteredByStringAction;
  * @ApiResource(
  *      security="is_granted('ROLE_USER')",
  *      itemOperations={
- *          "get",
+ *          "get"={
+ *               "requirements"={"id"="^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$"}
+ *          },
  *          "get-random-tweet-from-hashtag"={
  *              "path"="/tweets/hashtag/{hashtagId}/random-tweet",
  *              "method"="GET",
@@ -39,8 +41,21 @@ use App\Controller\TweetFilteredByStringAction;
  *          "get",
  *          "get-filtered-by-string"={
  *              "security"="is_granted('ROLE_ADMIN')",
- *              "path"="tweets/global/search",
- *              "method"="GET"
+ *              "path"="tweets/global-search",
+ *              "method"="GET",
+ *              "openapi_context"={
+ *                  "summary"="Global search for tweets (search over fields username, hashtagName, and content)",
+ *                  "description"="Search over fields username, hashtagName, and content",
+ *                  "parameters"={
+ *                      {
+ *                          "name"="search",
+ *                          "description"="Seach string",
+ *                          "in"="query",
+ *                          "schema"={"type"="string"},
+ *                          "required"=false
+ *                      },
+ *                  }
+ *               },
  *          }
  *      }
  * )

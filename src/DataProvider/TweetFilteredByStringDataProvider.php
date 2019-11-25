@@ -28,6 +28,7 @@ final class TweetFilteredByStringDataProvider implements CollectionDataProviderI
     public function getCollection(string $resourceClass, string $operationName = null)
     {
         $searchString = $this->requestStack->getCurrentRequest()->get('search');
+
         return $this->entityManager->getRepository(Tweet::class)->createQueryBuilder('t')
             ->join('t.hashtag', 'h')
             ->where('t.userName LIKE :searchString')
