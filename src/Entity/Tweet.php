@@ -41,9 +41,10 @@ use ApiPlatform\Core\Bridge\Doctrine\Orm\Filter\DateFilter;
  *          "tweetId":"exact",
  *          "userName":"partial",
  *          "originalTweetUsername":"partial",
- *          "content":"partial"
+ *          "content":"partial",
+ *          "hashtag.name": "exact"
  *      })
- * @ApiFilter(OrderFilter::class, properties={"id", "userName", "createdAt"}, arguments={"orderParameterName"="order"})
+ * @ApiFilter(OrderFilter::class, properties={"id", "userName", "hashtag.name", "createdAt"}, arguments={"orderParameterName"="order"})
  * @ApiFilter(DateFilter::class, properties={"createdAt"})
  */
 class Tweet
@@ -57,6 +58,7 @@ class Tweet
     private $content;
     private $createdAt;
     private $hashtag;
+    private $hashtagName;
 
     public function __construct()
     {
@@ -235,5 +237,10 @@ class Tweet
         $this->hashtag = $hashtag;
 
         return $this;
+    }
+    
+    public function getHashtagName()
+    {
+        return $this->getHashtag()->getName();
     }
 }
