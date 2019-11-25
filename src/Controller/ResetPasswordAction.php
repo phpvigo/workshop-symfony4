@@ -33,9 +33,11 @@ class ResetPasswordAction
         // Validator would be called after data returned in this method, so we have to do it manually
         $this->validator->validate($data);
 
-        $this->userPasswordEncoder->encodePassword(
-            $data,
-            $data->getNewPassword()
+        $data->setPassword(
+            $this->userPasswordEncoder->encodePassword(
+                $data,
+                $data->getNewPassword()
+            )
         );
 
         $this->entityManager->flush();
