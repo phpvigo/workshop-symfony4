@@ -17,7 +17,7 @@ use ApiPlatform\Core\Bridge\Doctrine\Orm\Filter\OrderFilter;
  *     collectionOperations={"get"}
  * )
  * @ApiFilter(SearchFilter::class, properties={"id":"exact", "name":"partial"})
- * @ApiFilter(OrderFilter::class, properties={"lastTweet"}, arguments={"orderParameterName"="order"})
+ * @ApiFilter(OrderFilter::class, properties={"id", "lastTweet"}, arguments={"orderParameterName"="order"})
  */
 class Hashtag
 {

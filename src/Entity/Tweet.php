@@ -43,7 +43,7 @@ use ApiPlatform\Core\Bridge\Doctrine\Orm\Filter\DateFilter;
  *          "originalTweetUsername":"partial",
  *          "content":"partial"
  *      })
- * @ApiFilter(OrderFilter::class, properties={"lastTweet"}, arguments={"orderParameterName"="order"})
+ * @ApiFilter(OrderFilter::class, properties={"id", "userName", "createdAt"}, arguments={"orderParameterName"="order"})
  * @ApiFilter(DateFilter::class, properties={"createdAt"})
  */
 class Tweet
