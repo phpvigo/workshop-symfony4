@@ -5,16 +5,30 @@ namespace App\Entity;
 use ApiPlatform\Core\Annotation\ApiResource;
 use App\Entity\Traits\Uuidable;
 use Symfony\Component\Security\Core\User\UserInterface;
+use Symfony\Component\Security\Core\Validator\Constraints\UserPassword;
 use Symfony\Component\Serializer\Annotation\Groups;
 use Symfony\Component\Validator\Constraints as Assert;
 use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
 use App\Controller\ResetPasswordAction;
+use App\Controller\CurrentLoggedUserAction;
 
 /**
  * @ApiResource(
+ *     normalizationContext={"groups"={"read"}},
  *     itemOperations={
  *          "get"={
  *              "security"="is_granted('ROLE_ADMIN') or object == user"
+ *          },
+ *          "get-current-user": {
+ *              "security"="is_granted('ROLE_USER')",
+ *              "path"="/me",
+ *              "method"="GET",
+ *              "controller"=CurrentLoggedUserAction::class,
+ *              "openapi_context"= {
+ *                  "summary"="Obtain current logged user",
+ *                  "parameters"={}
+ *              },
+ *              "read"=false
  *          },
  *          "put"= {
  *              "security"="is_granted('ROLE_ADMIN')"
@@ -28,9 +42,12 @@ use App\Controller\ResetPasswordAction;
  *                  "groups"={"put-reset-password"}
  *              },
  *              "openapi_context"= {
- *                  "summary"="Reset password"
+ *                  "summary"="Resets user password"
  *              },
  *              "validation_groups"={"put-reset-password"}
+ *          },
+ *          "delete"={
+ *              "security"="is_granted('ROLE_ADMIN') and object != user"
  *          }
  *     },
  *     collectionOperations={
@@ -80,12 +97,14 @@ class User implements UserInterface
     /**
      * @Groups({"put-reset-password"})
      * @Assert\NotBlank(groups={"put-reset-password"})
+     * @Assert\Expression("", groups={"put-reset-password"})
      */
     private $oldPassword;
 
     /**
      * @Groups({"put-reset-password"})
      * @Assert\NotBlank(groups={"put-reset-password"})
+     * @UserPassword
      */
     private $newPassword;
 
@@ -94,7 +113,9 @@ class User implements UserInterface
      * @Assert\NotBlank(groups={"put-reset-password"})
      */
     private $retypeNewPassword;
-
+    /**
+     * @Groups({"read"})
+     */
     private $roles;
 
     public function __construct()
@@ -102,18 +123,11 @@ class User implements UserInterface
         $this->roles = self::DEFAULT_ROLES;
     }
 
-    /**
-     * @return mixed
-     */
     public function getUsername()
     {
         return $this->username;
     }
 
-    /**
-     * @param mixed $username
-     * @return User
-     */
     public function setUsername($username)
     {
         $this->username = $username;
@@ -121,18 +135,11 @@ class User implements UserInterface
         return $this;
     }
 
-    /**
-     * @return mixed
-     */
     public function getPassword()
     {
         return $this->password;
     }
 
-    /**
-     * @param mixed $password
-     * @return User
-     */
     public function setPassword($password)
     {
         $this->password = $password;
@@ -140,18 +147,11 @@ class User implements UserInterface
         return $this;
     }
 
-    /**
-     * @return mixed
-     */
     public function getRetypedPassword()
     {
         return $this->retypedPassword;
     }
 
-    /**
-     * @param mixed $retypedPassword
-     * @return User
-     */
     public function setRetypedPassword($retypedPassword)
     {
         $this->retypedPassword = $retypedPassword;
@@ -159,18 +159,11 @@ class User implements UserInterface
         return $this;
     }
 
-    /**
-     * @return mixed
-     */
     public function getRoles()
     {
         return $this->roles;
     }
 
-    /**
-     * @param mixed $roles
-     * @return User
-     */
     public function setRoles($roles)
     {
         $this->roles = $roles;
@@ -178,18 +171,11 @@ class User implements UserInterface
         return $this;
     }
 
-    /**
-     * @return mixed
-     */
     public function getId()
     {
         return $this->id;
     }
 
-    /**
-     * @param mixed $id
-     * @return User
-     */
     public function setId($id)
     {
         $this->id = $id;
@@ -206,18 +192,11 @@ class User implements UserInterface
     {
     }
 
-    /**
-     * @return mixed
-     */
     public function getOldPassword()
     {
         return $this->oldPassword;
     }
 
-    /**
-     * @param mixed $oldPassword
-     * @return User
-     */
     public function setOldPassword($oldPassword)
     {
         $this->oldPassword = $oldPassword;
@@ -225,18 +204,11 @@ class User implements UserInterface
         return $this;
     }
 
-    /**
-     * @return mixed
-     */
     public function getNewPassword()
     {
         return $this->newPassword;
     }
 
-    /**
-     * @param mixed $newPassword
-     * @return User
-     */
     public function setNewPassword($newPassword)
     {
         $this->newPassword = $newPassword;
@@ -244,23 +216,15 @@ class User implements UserInterface
         return $this;
     }
 
-    /**
-     * @return mixed
-     */
     public function getRetypeNewPassword()
     {
         return $this->retypeNewPassword;
     }
 
-    /**
-     * @param mixed $retypeNewPassword
-     * @return User
-     */
     public function setRetypeNewPassword($retypeNewPassword)
     {
         $this->retypeNewPassword = $retypeNewPassword;
 
         return $this;
     }
-
 }

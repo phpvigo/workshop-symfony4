@@ -3,13 +3,48 @@
 namespace App\Entity;
 
 use ApiPlatform\Core\Annotation\ApiResource;
+use ApiPlatform\Core\Annotation\ApiFilter;
 use App\Entity\Traits\Uuidable;
+use App\Controller\RandomTweetForHashtagAction;
+use ApiPlatform\Core\Bridge\Doctrine\Orm\Filter\SearchFilter;
+use ApiPlatform\Core\Bridge\Doctrine\Orm\Filter\OrderFilter;
+use ApiPlatform\Core\Bridge\Doctrine\Orm\Filter\DateFilter;
 
 /**
  * @ApiResource(
- *     itemOperations={"get"},
+ *      security="is_granted('ROLE_USER')",
+ *      itemOperations={
+ *          "get",
+ *          "get-random-tweet-from-hashtag"={
+ *              "path"="/tweets/hashtag/{hashtagId}/random-tweet",
+ *              "method"="GET",
+ *              "controller"=RandomTweetForHashtagAction::class,
+ *              "openapi_context"={
+ *                  "summary"="Get random tweet from a tweet hashtag",
+ *                  "parameters"={
+ *                      {
+ *                          "name"="hashtagId",
+ *                          "description"="UUID for hashtag",
+ *                          "in"="path",
+ *                          "schema"={"type"="uuid"},
+ *                          "required"=true
+ *                      },
+ *                  }
+ *               },
+ *              "read"=false
+ *          }
+ *      },
  *     collectionOperations={"get"}
  * )
+ * @ApiFilter(SearchFilter::class, properties={
+ *          "id":"exact",
+ *          "tweetId":"exact",
+ *          "userName":"partial",
+ *          "originalTweetUsername":"partial",
+ *          "content":"partial"
+ *      })
+ * @ApiFilter(OrderFilter::class, properties={"lastTweet"}, arguments={"orderParameterName"="order"})
+ * @ApiFilter(DateFilter::class, properties={"createdAt"})
  */
 class Tweet
 {
@@ -30,7 +65,7 @@ class Tweet
 
     public function __toString()
     {
-        return $this->getCreatedAt()->format('Y/m/d H:i:s') . ': @' . $this->getUserName();
+        return $this->getCreatedAt()->format('Y/m/d H:i:s').': @'.$this->getUserName();
     }
 
     /**
@@ -38,7 +73,7 @@ class Tweet
      * @param Hashtag $hashtag
      * @return Tweet
      */
-    public static function buildAndAttachToHashtag(\StdClass $tweet, Hashtag $hashtag) : self
+    public static function buildAndAttachToHashtag(\StdClass $tweet, Hashtag $hashtag): self
     {
         $originalTweetUsername = isset($tweet->retweeted_status) ? $tweet->retweeted_status->user->screen_name : null;
 
@@ -58,7 +93,7 @@ class Tweet
     /**
      * @return int
      */
-    public function getTweetId() : int
+    public function getTweetId(): int
     {
         return $this->tweetId;
     }
@@ -68,7 +103,7 @@ class Tweet
      *
      * @return Tweet
      */
-    public function setTweetId(int $tweetId) : self
+    public function setTweetId(int $tweetId): self
     {
         $this->tweetId = $tweetId;
 
@@ -78,7 +113,7 @@ class Tweet
     /**
      * @return string
      */
-    public function getUserName() : string
+    public function getUserName(): string
     {
         return $this->userName;
     }
@@ -88,7 +123,7 @@ class Tweet
      *
      * @return Tweet
      */
-    public function setUserName(string $userName) : self
+    public function setUserName(string $userName): self
     {
         $this->userName = $userName;
 
@@ -98,7 +133,7 @@ class Tweet
     /**
      * @return string
      */
-    public function getUserImage() : string
+    public function getUserImage(): string
     {
         return $this->userImage;
     }
@@ -108,7 +143,7 @@ class Tweet
      *
      * @return Tweet
      */
-    public function setUserImage(string $userImage) : self
+    public function setUserImage(string $userImage): self
     {
         $this->userImage = $userImage;
 
@@ -118,7 +153,7 @@ class Tweet
     /**
      * @return string
      */
-    public function getOriginalTweetUsername() : ?string
+    public function getOriginalTweetUsername(): ?string
     {
         return $this->originalTweetUsername;
     }
@@ -128,7 +163,7 @@ class Tweet
      *
      * @return Tweet
      */
-    public function setOriginalTweetUsername(?string $originalTweetUsername) : self
+    public function setOriginalTweetUsername(?string $originalTweetUsername): self
     {
         $this->originalTweetUsername = $originalTweetUsername;
 
@@ -138,7 +173,7 @@ class Tweet
     /**
      * @return string
      */
-    public function getContent() : string
+    public function getContent(): string
     {
         return $this->content;
     }
@@ -148,7 +183,7 @@ class Tweet
      *
      * @return Tweet
      */
-    public function setContent(string $content) : self
+    public function setContent(string $content): self
     {
         $this->content = $content;
 
@@ -158,7 +193,7 @@ class Tweet
     /**
      * @return \DateTime
      */
-    public function getCreatedAt() : \DateTime
+    public function getCreatedAt(): \DateTime
     {
         return $this->createdAt;
     }
@@ -168,7 +203,7 @@ class Tweet
      *
      * @return Tweet
      */
-    public function setCreatedAt($createdAt) : self
+    public function setCreatedAt($createdAt): self
     {
         $this->createdAt = $createdAt;
 
@@ -178,9 +213,9 @@ class Tweet
     /**
      * @return string
      */
-    public function getLink() : string
+    public function getLink(): string
     {
-        return  "<a href='https://twitter.com/{$this->getUserName()}/status/{$this->getTweetId()}' target='_blank'>{$this->getTweetId()}</a>";
+        return "<a href='https://twitter.com/{$this->getUserName()}/status/{$this->getTweetId()}' target='_blank'>{$this->getTweetId()}</a>";
     }
 
     /**
