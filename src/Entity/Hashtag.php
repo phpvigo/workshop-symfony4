@@ -3,15 +3,21 @@
 namespace App\Entity;
 
 use ApiPlatform\Core\Annotation\ApiResource;
+use ApiPlatform\Core\Annotation\ApiFilter;
 use App\Entity\Traits\Uuidable;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
+use ApiPlatform\Core\Bridge\Doctrine\Orm\Filter\SearchFilter;
+use ApiPlatform\Core\Bridge\Doctrine\Orm\Filter\OrderFilter;
 
 /**
  * @ApiResource(
+ *     security="is_granted('ROLE_USER')",
  *     itemOperations={"get"},
  *     collectionOperations={"get"}
  * )
+ * @ApiFilter(SearchFilter::class, properties={"id":"exact", "name":"partial"})
+ * @ApiFilter(OrderFilter::class, properties={"lastTweet"}, arguments={"orderParameterName"="order"})
  */
 class Hashtag
 {
