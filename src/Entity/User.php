@@ -15,6 +15,7 @@ use App\Controller\CurrentLoggedUserAction;
 /**
  * @ApiResource(
  *     normalizationContext={"groups"={"read"}},
+ *     denormalizationContext={"groups"={"write"}},
  *     itemOperations={
  *          "get"={
  *              "security"="is_granted('ROLE_ADMIN') or object == user"
@@ -31,7 +32,8 @@ use App\Controller\CurrentLoggedUserAction;
  *              "read"=false
  *          },
  *          "put"= {
- *              "security"="is_granted('ROLE_ADMIN')"
+ *              "security"="is_granted('ROLE_ADMIN')",
+ *              "validation_groups"={"write"}
  *          },
  *          "put_reset_password"= {
  *              "security"="is_granted('ROLE_USER') and object == user",
@@ -55,11 +57,12 @@ use App\Controller\CurrentLoggedUserAction;
  *              "security"="is_granted('ROLE_ADMIN')",
  *          },
  *          "post": {
- *              "security"="is_granted('ROLE_ADMIN')"
+ *              "security"="is_granted('ROLE_ADMIN')",
+ *              "validation_groups"={"write"}
  *          }
  *     }
  * )
- * @UniqueEntity("username")
+ * @UniqueEntity("username", groups={"write"})
  */
 class User implements UserInterface
 {
@@ -70,26 +73,30 @@ class User implements UserInterface
     use Uuidable;
 
     /**
-     * @Groups({"read"})
-     * @Assert\NotBlank
+     * @Groups({"read", "write"})
+     * @Assert\NotBlank(groups={"write"})
      * @Assert\Length(min="5", max="100")
      */
     private $username;
 
     /**
-     * @Assert\NotBlank
+     * @Groups({"write"})
+     * @Assert\NotBlank(groups={"write"})
      * @Assert\Regex(
      *     pattern="/(?=.*[A-Z])(?=.*[a-z])(?=.*[0-9]).{7,}/",
-     *     message="Password must be seven characters long and contain at least one digit, one upper case letter and one lowercase letter"
+     *     message="Password must be seven characters long and contain at least one digit, one upper case letter and one lowercase letter",
+     *     groups={"write"}
      * )
      */
     private $password;
 
     /**
-     * @Assert\NotBlank()
+     * @Groups({"write"})
+     * @Assert\NotBlank(groups={"write"})
      * @Assert\Expression(
      *     "this.getPassword() === this.getRetypedPassword()",
-     *     message="Passwords does not match"
+     *     message="Passwords does not match",
+     *     groups={"write"}
      * )
      */
     private $retypedPassword;
@@ -114,7 +121,7 @@ class User implements UserInterface
      */
     private $retypeNewPassword;
     /**
-     * @Groups({"read"})
+     * @Groups({"read", "write"})
      */
     private $roles;
 
