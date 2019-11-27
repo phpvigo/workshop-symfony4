@@ -2,22 +2,36 @@
 
 namespace App\DataProvider;
 
+use ApiPlatform\Core\Bridge\Doctrine\Orm\Extension\QueryResultCollectionExtensionInterface;
+use ApiPlatform\Core\Bridge\Doctrine\Orm\Util\QueryNameGenerator;
 use ApiPlatform\Core\DataProvider\CollectionDataProviderInterface;
 use ApiPlatform\Core\DataProvider\RestrictedDataProviderInterface;
 use ApiPlatform\Core\Exception\ResourceClassNotSupportedException;
-use Doctrine\ORM\EntityManagerInterface;
+use ApiPlatform\Core\Exception\RuntimeException;
+use Doctrine\Common\Persistence\ManagerRegistry;
 use Symfony\Component\HttpFoundation\RequestStack;
 use App\Entity\Tweet;
 
 final class TweetFilteredByStringDataProvider implements CollectionDataProviderInterface, RestrictedDataProviderInterface
 {
     private $requestStack;
-    private $entityManager;
+    private $managerRegistry;
+    private $collectionExtensions;
 
-    public function __construct(RequestStack $requestStack, EntityManagerInterface $entityManager)
-    {
+    /**
+     * TweetFilteredByStringDataProvider constructor.
+     * @param ManagerRegistry $managerRegistry
+     * @param iterable $collectionExtensions
+     * @param RequestStack $requestStack
+     */
+    public function __construct(
+        ManagerRegistry $managerRegistry,
+        iterable $collectionExtensions = [],
+        RequestStack $requestStack
+    ) {
+        $this->managerRegistry = $managerRegistry;
+        $this->collectionExtensions = $collectionExtensions;
         $this->requestStack = $requestStack;
-        $this->entityManager = $entityManager;
     }
 
     public function supports(string $resourceClass, string $operationName = null, array $context = []): bool
@@ -25,17 +39,37 @@ final class TweetFilteredByStringDataProvider implements CollectionDataProviderI
         return $resourceClass === Tweet::class && $operationName === 'get-filtered-by-string';
     }
 
-    public function getCollection(string $resourceClass, string $operationName = null)
+    public function getCollection(string $resourceClass, string $operationName = null, array $context = [])
     {
         $searchString = $this->requestStack->getCurrentRequest()->get('search');
 
-        return $this->entityManager->getRepository(Tweet::class)->createQueryBuilder('t')
+        $manager = $this->managerRegistry->getManagerForClass($resourceClass);
+
+        $repository = $manager->getRepository($resourceClass);
+        if (!method_exists($repository, 'createQueryBuilder')) {
+            throw new RuntimeException('The repository class must have a "createQueryBuilder" method.');
+        }
+
+        $queryBuilder = $repository->createQueryBuilder('t')
             ->join('t.hashtag', 'h')
             ->where('t.userName LIKE :searchString')
             ->orWhere('t.content LIKE :searchString')
             ->orWhere('h.name LIKE :searchString')
-            ->setParameter('searchString', '%'.$searchString.'%')
-            ->getQuery()
-            ->getResult();
+            ->setParameter('searchString', '%'.$searchString.'%');
+
+        $queryNameGenerator = new QueryNameGenerator();
+
+        foreach ($this->collectionExtensions as $extension) {
+            $extension->applyToCollection($queryBuilder, $queryNameGenerator, $resourceClass, $operationName, $context);
+
+            if ($extension instanceof QueryResultCollectionExtensionInterface && $extension->supportsResult(
+                $resourceClass,
+                $operationName
+                )) {
+                return $extension->getResult($queryBuilder, $resourceClass, $operationName, $context);
+            }
+        }
+
+        return $queryBuilder->getQuery()->getResult();
     }
 }
