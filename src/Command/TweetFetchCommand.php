@@ -18,7 +18,7 @@ use Symfony\Component\Console\Output\OutputInterface;
 
 class TweetFetchCommand extends Command
 {
-    protected static $defaultName = 'licensedrawer:tweet:fetch';
+    protected static $defaultName = 'tweet:fetch';
 
     private $twitterClient;
     private $tweetRepository;
@@ -115,7 +115,7 @@ EOD
 
         $tweetsToSave = [];
 
-        foreach ($tweets as $tweet) {
+        foreach ($tweets AS $tweet) {
             $tweetsToSave[] = Tweet::buildAndAttachToHashtag($tweet, $hashtag);
         }
 
@@ -147,7 +147,7 @@ EOD
     private function obtainMaxTweetid(Tweet ... $tweets) : int
     {
         $ids = [];
-        foreach ($tweets as $tweet) {
+        foreach ($tweets AS $tweet) {
             $ids[] = (int) $tweet->getTweetId();
         }
         $ids[] = 0;

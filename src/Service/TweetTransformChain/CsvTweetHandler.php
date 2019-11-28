@@ -3,6 +3,7 @@
 
 namespace App\Service\TweetTransformChain;
 
+
 use App\Entity\TweetCollection;
 
 class CsvTweetHandler extends AbstractTweetTransform
@@ -24,7 +25,7 @@ class CsvTweetHandler extends AbstractTweetTransform
     {
         $csvTempFile = fopen('php://memory', 'r+');
         fputcsv($csvTempFile, ['id', 'username', 'user_image', 'content', 'link', 'date']);
-        foreach ($tweets as $tweet) {
+        foreach ($tweets AS $tweet) {
             fputcsv($csvTempFile, [$tweet->getTweetId(), $tweet->getUserName(), $tweet->getUserImage(), $tweet->getContent(), 'https://twitter.com/' . $tweet->getUserName() . '/status/' . $tweet->getTweetId(), $tweet->getCreatedAt()->format('c')]);
         }
         rewind($csvTempFile);

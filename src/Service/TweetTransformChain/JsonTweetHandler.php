@@ -3,6 +3,7 @@
 
 namespace App\Service\TweetTransformChain;
 
+
 use App\Entity\TweetCollection;
 
 class JsonTweetHandler extends AbstractTweetTransform
@@ -23,7 +24,7 @@ class JsonTweetHandler extends AbstractTweetTransform
     private function processResponse(TweetCollection $tweets): string
     {
         $data = [];
-        foreach ($tweets as $tweet) {
+        foreach ($tweets AS $tweet) {
             $data[] = [
                 'id' => $tweet->getTweetId(),
                 'username' => $tweet->getUserName(),

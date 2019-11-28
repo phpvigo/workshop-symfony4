@@ -19,4 +19,6 @@ abstract class AbstractTweetTransform implements TweetTransformHandler
     {
         return $this->nextHandler ? $this->nextHandler->handle($tweetTransformRequest) : '';
     }
+
+
 }
