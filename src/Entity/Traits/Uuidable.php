@@ -9,9 +9,13 @@
 namespace App\Entity\Traits;
 
 use Ramsey\Uuid\Uuid;
+use Symfony\Component\Serializer\Annotation\Groups;
 
 trait Uuidable
 {
+    /**
+     * @Groups({"read"})
+     */
     private $id;
 
     private function generateId()

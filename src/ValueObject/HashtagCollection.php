@@ -8,7 +8,6 @@
 
 namespace App\ValueObject;
 
-
 use App\Entity\Hashtag;
 
 class HashtagCollection implements \Countable, \Iterator
@@ -27,19 +26,23 @@ class HashtagCollection implements \Countable, \Iterator
         return count($this->data);
     }
 
-    public function rewind() {
+    public function rewind()
+    {
         $this->position = 0;
     }
 
-    public function current() {
+    public function current()
+    {
         return $this->data[$this->position];
     }
 
-    public function key() {
+    public function key()
+    {
         return $this->position;
     }
 
-    public function next() {
+    public function next()
+    {
         ++$this->position;
     }
 
@@ -47,5 +50,4 @@ class HashtagCollection implements \Countable, \Iterator
     {
         return isset($this->data[$this->position]);
     }
-
 }

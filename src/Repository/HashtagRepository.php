@@ -43,12 +43,10 @@ class HashtagRepository extends ServiceEntityRepository implements \App\Entity\H
     {
         $hashtag = $this->find($slug);
 
-        if  ($hashtag === null) {
+        if ($hashtag === null) {
             throw new NotFoundHashtagException($slug);
         }
 
         return $hashtag;
     }
-
-
 }

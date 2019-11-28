@@ -12,7 +12,7 @@ App\Entity\Tweet:
   fields:
     tweetId:
       column: tweet_id
-      type: integer
+      type: string
       unique: true
     userName:
       column: user_name
