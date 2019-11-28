@@ -8,6 +8,7 @@
 
 namespace App\ValueObject;
 
+
 use App\Entity\Hashtag;
 
 /**
@@ -16,6 +17,7 @@ use App\Entity\Hashtag;
  */
 class TwitterSearch
 {
+
     private $hashtag;
     private $includeEntities;
     private $resultType;
@@ -67,4 +69,5 @@ class TwitterSearch
     {
         return $this->count;
     }
+
 }

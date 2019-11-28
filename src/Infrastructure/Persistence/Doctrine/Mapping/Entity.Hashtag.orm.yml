@@ -17,7 +17,7 @@ App\Entity\Hashtag:
       nullable: true
     lastTweet:
       column: last_tweet
-      type: string
+      type: integer
       nullable: true
   oneToMany:
     tweet:

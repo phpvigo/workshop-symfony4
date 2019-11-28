@@ -25,7 +25,7 @@ class HashtagController
      * @throws \Twig\Error\RuntimeError
      * @throws \Twig\Error\SyntaxError
      */
-    public function listHashtags(HashtagRepository $hashtagRepository, \Twig_Environment $twig)
+    function listHashtags(HashtagRepository $hashtagRepository, \Twig_Environment $twig)
     {
         $useCase = new ObtainAllHashtags($hashtagRepository);
         $data = $useCase->dispatch();
