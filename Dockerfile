@@ -1,7 +1,7 @@
 # the different stages of this Dockerfile are meant to be built into separate images
 # https://docs.docker.com/compose/compose-file/#target
 
-ARG PHP_VERSION=7.2
+ARG PHP_VERSION=7.4
 ARG NGINX_VERSION=1.15
 
 ### NGINX
@@ -38,18 +38,21 @@ RUN apk add --no-cache \
 		zlib \
 		jq
 
-ENV APCU_VERSION 5.1.12
 RUN set -eux \
 	&& apk add --no-cache --virtual .build-deps \
 		$PHPIZE_DEPS \
 		icu-dev \
-		zlib-dev \
+		zip libzip-dev \
+		freetype libpng libjpeg-turbo freetype-dev libpng-dev libjpeg-turbo-dev \
+	&& docker-php-ext-configure gd \
+			--with-gd \
+			--with-freetype-dir=/usr/include/ \
+			--with-png-dir=/usr/include/ \
+			--with-jpeg-dir=/usr/include/ \	
 	&& docker-php-ext-install -j$(nproc) \
 		intl \
 		zip \
-	&& pecl install \
-		apcu-${APCU_VERSION} \
-	&& docker-php-ext-enable --ini-name 20-apcu.ini apcu \
+		gd \
 	&& docker-php-ext-enable --ini-name 05-opcache.ini opcache \
 	&& runDeps="$( \
         scanelf --needed --nobanner --format '%n#p' --recursive /usr/local/lib/php/extensions \
@@ -73,25 +76,11 @@ CMD ["php-fpm"]
 # https://getcomposer.org/doc/03-cli.md#composer-allow-superuser
 ENV COMPOSER_ALLOW_SUPERUSER 1
 
-# Use prestissimo to speed up builds
-RUN composer global require "symfony/flex" --prefer-dist --no-progress --no-suggest --classmap-authoritative  --no-interaction
-
-# Allow to use development versions of Symfony
-ARG STABILITY="stable"
-ENV STABILITY ${STABILITY:-stable}
-
-# Allow to select skeleton version
-ARG SYMFONY_VERSION=""
-
-# Download the Symfony skeleton and leverage Docker cache layers
-RUN composer create-project "symfony/skeleton ${SYMFONY_VERSION}" . --stability=$STABILITY --prefer-dist --no-dev --no-progress --no-scripts --no-plugins --no-interaction
-
-###> recipes ###
-###< recipes ###
-
 COPY . .
 
-RUN mkdir -p var/cache var/logs var/sessions \
-    && composer install --prefer-dist --no-dev --no-scripts --no-progress --no-suggest --classmap-authoritative --no-interaction \
-    && composer clear-cache \
-    && chown -R www-data var
+RUN composer global require "symfony/flex" --prefer-dist --no-progress --no-suggest --classmap-authoritative  --no-interaction
+
+# Install dependencies
+RUN composer update \
+	&& composer clear-cache \
+	&& chown -R www-data var
