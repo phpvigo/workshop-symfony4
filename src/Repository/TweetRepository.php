@@ -6,7 +6,7 @@ use App\Entity\Hashtag;
 use App\Entity\Tweet;
 use App\Entity\TweetCollection;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
-use Symfony\Bridge\Doctrine\RegistryInterface;
+use Doctrine\Common\Persistence\ManagerRegistry;
 
 /**
  * @method Tweet|null find($id, $lockMode = null, $lockVersion = null)
@@ -16,7 +16,7 @@ use Symfony\Bridge\Doctrine\RegistryInterface;
  */
 class TweetRepository extends ServiceEntityRepository implements \App\Entity\TweetRepository
 {
-    public function __construct(RegistryInterface $registry)
+    public function __construct(ManagerRegistry $registry)
     {
         parent::__construct($registry, Tweet::class);
     }
