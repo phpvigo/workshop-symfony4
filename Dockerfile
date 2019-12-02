@@ -53,6 +53,7 @@ RUN set -eux \
 		intl \
 		zip \
 		gd \
+	&& docker-php-ext-install pdo_mysql \	
 	&& docker-php-ext-enable --ini-name 05-opcache.ini opcache \
 	&& runDeps="$( \
         scanelf --needed --nobanner --format '%n#p' --recursive /usr/local/lib/php/extensions \
