@@ -18,6 +18,8 @@ services:
       - /srv/app/var/sessions/
     environment:
       - SYMFONY_VERSION
+    depends_on:
+      - db
 
   nginx:
     build:
@@ -32,6 +34,18 @@ services:
     ports:
       - '80:80'
 
+  db:
+    image: mariadb:10.5
+    ports:
+      - '33306:3306'
+    environment:
+      MYSQL_DATABASE: db_name
+      MYSQL_USER: db_user
+      MYSQL_PASSWORD: db_password
+      MYSQL_ROOT_PASSWORD: root_pwd
+    volumes:
+      - db-data:/var/lib/mysql
+
   # This HTTP/2 proxy is not secure: it should only be used in dev
   h2-proxy:
     build:
@@ -43,3 +57,6 @@ services:
       - ./docker/h2-proxy/default.conf:/etc/nginx/conf.d/default.conf:ro
     ports:
       - '443:443'
+
+volumes:
+  db-data:

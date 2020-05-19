@@ -25,6 +25,9 @@ if [ "$1" = 'php-fpm' ] || [ "$1" = 'bin/console' ]; then
     elif [ "$APP_ENV" != 'prod' ]; then
         # Always try to reinstall deps when not in prod
         composer install --prefer-dist --no-progress --no-suggest --no-interaction
+        php bin/console make:migration --no-interaction --no-debug --env="${APP_ENV}"
+        php bin/console doctrine:database:create --if-not-exists --no-interaction --no-debug --env="${APP_ENV}"
+        php bin/console doctrine:migrations:migrate --allow-no-migration --no-interaction --no-debug --env="${APP_ENV}"
     fi
 
 	# Permissions hack because setfacl does not work on Mac and Windows
