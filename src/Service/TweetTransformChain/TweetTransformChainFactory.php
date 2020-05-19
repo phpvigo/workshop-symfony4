@@ -3,7 +3,6 @@
 
 namespace App\Service\TweetTransformChain;
 
-
 class TweetTransformChainFactory
 {
     /**
@@ -14,7 +13,7 @@ class TweetTransformChainFactory
     public function __construct(TweetTransformHandler ... $tweetTransformHandlers)
     {
         $lastHandler = null;
-        foreach ($tweetTransformHandlers AS $tweetTransformHandler) {
+        foreach ($tweetTransformHandlers as $tweetTransformHandler) {
             $this->setNextIfChainNotExists($tweetTransformHandler, $lastHandler);
             $this->setChainIfNotExists($tweetTransformHandler);
             $lastHandler = $tweetTransformHandler;

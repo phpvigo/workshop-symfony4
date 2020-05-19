@@ -67,3 +67,7 @@ services:
       - '@App\Service\TweetTransformChain\CsvTweetHandler'
       - '@App\Service\TweetTransformChain\JsonTweetHandler'
       - '@App\Service\TweetTransformChain\ExcelTweetHandler'
+
+  'App\DataProvider\TweetFilteredByStringDataProvider':
+    arguments:
+      $collectionExtensions: !tagged api_platform.doctrine.orm.query_extension.collection

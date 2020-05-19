@@ -15,7 +15,7 @@ class ResponserFormatter implements ResponserFormatterContainer
     public function __construct(ResponserTypableFormatter ... $formaters)
     {
         $this->formaters = [];
-        foreach ($formaters AS $formater) {
+        foreach ($formaters as $formater) {
             $this->formaters[$formater->type()] = $formater;
         }
     }

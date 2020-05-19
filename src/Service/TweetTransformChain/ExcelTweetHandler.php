@@ -36,7 +36,7 @@ class ExcelTweetHandler extends AbstractTweetTransform
         $worksheet->setCellValue('E' . $i, 'link');
         $worksheet->setCellValue('F' . $i, 'date');
         $i++;
-        foreach ($tweets AS $tweet) {
+        foreach ($tweets as $tweet) {
             $worksheet->setCellValue('A' . $i, $tweet->getTweetId());
             $worksheet->setCellValue('B' . $i, $tweet->getUserName());
             $worksheet->setCellValue('C' . $i, $tweet->getUserImage());
