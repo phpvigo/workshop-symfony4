@@ -3,12 +3,6 @@
 
 ``` bash
 $ cp .env.dist .env
-
-# Debemos indicar las variables de entorno
-    root_pwd=my-super-secret
-    db_name=api_platform
-    db_user=root
-    db_password=
 ```
     
 #### Docker: Levantamos los servicios y comandos de interes
